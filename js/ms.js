@@ -1,8 +1,9 @@
+$(function() {	
 	var initLocations = [
 		{
 			'name':'Central Park',
 			'category':'placeOfInterest',
-			'selected': true
+			'selected': false
 		},
 
 		{
@@ -56,7 +57,7 @@
 			console.log(loc.name() + ':' +loc.category() + ":"+loc.selected());
 		});
 
-		/*var searchPlace = function (search_term) {
+		var searchPlace = function (search_term) {
 			self.locations().forEach(function(loc) {
 				if (loc.name().search(search_term) === -1) {
 					loc.selected(false);
@@ -68,11 +69,9 @@
 		var markOnMap = function() {
 
 		};
-
-		//self.places=['place 1', 'place 2','place 3'];*/
-
 	};
 
 	ko.applyBindings(new ViewModel());
+});
 
 
