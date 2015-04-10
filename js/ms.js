@@ -1,8 +1,8 @@
-$(function() {
 	var initLocations = [
 		{
-		'name':'Central Park',
-		'category':'placeOfInterest'
+			'name':'Central Park',
+			'category':'placeOfInterest',
+			'selected': true
 		},
 
 		{
@@ -28,6 +28,7 @@ $(function() {
 			'category': 'transit',
 			'selected':true
 		},
+
 		{
 			'name':'Rockefeller Center',
 			'category': 'placeOfInterest',
@@ -35,36 +36,43 @@ $(function() {
 		}
 	];
 
-	var place = function(data) {
+	var Place = function(data) {
 		this.name = ko.observable(data.name);
 		this.category = ko.observable(data.category);
 		this.selected= ko.observable(data.selected);
 	};
 
-	var ViewModel = {
+	var ViewModel = function() {
 		var self = this;
-		var locations = ko.observableArray([]);
+		self.locations = ko.observableArray([]);
 
-		initLocations.foreach(loc) {
-			locations.push(new place(loc));
-		};
+		initLocations.forEach(function(loc) {
+			self.locations.push(new Place(loc));
+			
+		});
 
-		var searchPlace = function (search_term) {
-			self.locations.foreach(loc) {
-				if (loc.search(search_term) === -1) {
-					loc.selected = false;
+		console.log(self.locations().length);
+		self.locations().forEach(function(loc) {
+			console.log(loc.name() + ':' +loc.category() + ":"+loc.selected());
+		});
+
+		/*var searchPlace = function (search_term) {
+			self.locations().forEach(function(loc) {
+				if (loc.name().search(search_term) === -1) {
+					loc.selected(false);
 				}
-			}
+			});
 			//Use visible binding!!!
-		}
+		};
 
 		var markOnMap = function() {
 
-		}
+		};
 
-	}
+		//self.places=['place 1', 'place 2','place 3'];*/
+
+	};
+
+	ko.applyBindings(new ViewModel());
 
 
-
-
-});
