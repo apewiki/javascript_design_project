@@ -10,8 +10,8 @@
     <link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body>
-	<form>
-		<input type="text" name="seach_term">
+	<form id="search_form">
+		<input type="text" id="search_term" data-bind="text: search_term">
 		<h4>Loations</h4>
 		<ul data-bind="foreach: locations">
 		    <li data-bind="visible: selected">
@@ -20,6 +20,6 @@
 		    </li>
 		</ul>
 	</form>
-	
+
 </body>
 </html>
