@@ -83,18 +83,18 @@ $(function() {
 			} else {
 				ViewModel.reset();
 			}
+			MapView.pinPoster(self.locations());
 
 		};
 
 		ViewModel.setSearchTerm = function(search_term) {
 			self.search_term(search_term);
 			console.log("In setSearchTerm:"+self.search_term());
-		}
-
-
-		var markOnMap = function() {
-
 		};
+
+		ViewModel.getPlaces = function() {
+			return self.locations();
+		}
 	};
 
 	ko.applyBindings(new ViewModel());
@@ -124,7 +124,51 @@ $(function() {
 
 	};
 
+	var MapView = {
+
+
+		initMap : function() {
+
+			var map= new google.maps.map(document.getElementById('map'), {
+				center: {lat: 40.7033, lon:-73.9797},
+				zoom: 15
+			});
+			console.log("initMap is called");
+		},
+
+		pinPoster : function(locations) {
+			var service = new google.maps.places.PlaceService(map);
+
+			locations.forEach(function(loc) {
+				if (loc.selected()) {
+					var request = {
+						query: loc.name()
+					};
+					service.textSearch(request, this.callback);
+				}
+			})
+		},
+
+		callback : function(results, status) {
+			if (status == google.maps.places.PlacesServiceStatus.OK) {
+				for (var r in results) {
+					createMarker(r);
+				}
+			}
+		},
+
+		createMakrker : function (placeData) {
+			var market = new google.maps.Marker({
+				position: placeData.geometry.location,
+				map:this.map,
+				title: placeData.formatted_address
+			})
+		}
+
+	};
+
 	AppView.init();
+	window.addEventListener('load', MapView.initMap);
 });
 
 
