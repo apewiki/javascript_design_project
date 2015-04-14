@@ -1,4 +1,6 @@
 $(function() {
+
+	var map;
 	var initLocations = [
 		{
 			'name':'Central Park',
@@ -53,7 +55,7 @@ $(function() {
 
 		initMap : function() {
 
-			this.map= new google.maps.Map(document.getElementById('map'), {
+				map = new google.maps.Map(document.getElementById('map'), {
 				center: {lat: 40.7033, lng:-73.9797},
 				zoom: 12,
 				disableDefaultUI: true
@@ -62,34 +64,48 @@ $(function() {
 		},
 
 		pinPoster : function(location) {
-			var service = new google.maps.places.PlacesService(this.map);
+			if (map) {
+				var service = new google.maps.places.PlacesService(map);
 
-			var request = {
-				query: location
-			};
-			console.log("in pinPoster:"+location);
-			service.textSearch(request, this.callback);
+				var request = {
+					bounds: map.getBounds(),
+					query: location
+				};
+				console.log("in pinPoster:"+location);
+				service.textSearch(request, MapView.callback);
+			} else {
+				console.log("no map to post pins!");
+			}
+
+		},
+
+		createMarker : function (placeData) {
+			console.log("in createMakrker:"+placeData);
+			var lat = placeData.geometry.location.lat();
+			var lng = placeData.geometry.location.lng();
+			var bounds = map.getBounds();
+
+
+			var market = new google.maps.Marker({
+				position: placeData.geometry.location,
+				map: map,
+				title: placeData.formatted_address
+			})
+
+			bounds.extend(new google.maps.LatLng(lat,lng));
+			map.fitBounds(bounds);
 		},
 
 		callback : function(results, status) {
 			console.log("callback stauts:" + status);
 			if (status == google.maps.places.PlacesServiceStatus.OK) {
-				console.log("in callback:"+results[0]);
+				console.log("in callback, number of results:"+results.length);
 				for (var r in results) {
-					createMarker(r);
+					console.log(results[r]);
+					MapView.createMarker(results[r]);
 				}
 			}
-		},
-
-		createMakrker : function (placeData) {
-			console.log("in createMakrker:"+placeData.formatted_address);
-			var market = new google.maps.Marker({
-				position: placeData.geometry.location,
-				map:this.map,
-				title: placeData.formatted_address
-			})
 		}
-
 	};
 
 	var ViewModel = function() {
@@ -177,11 +193,11 @@ $(function() {
 
 	};
 
-	
+
 
 	AppView.init();
 	window.addEventListener('load', MapView.initMap);
-	ViewModel.setPins();
+	//ViewModel.setPins();
 });
 
 
