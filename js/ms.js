@@ -83,7 +83,7 @@ $(function() {
 			console.log("in createMakrker:"+placeData);
 			var lat = placeData.geometry.location.lat();
 			var lng = placeData.geometry.location.lng();
-			var bounds = map.getBounds();
+			var bounds = new google.maps.LatLngBounds();
 
 
 			var market = new google.maps.Marker({
@@ -94,6 +94,7 @@ $(function() {
 
 			bounds.extend(new google.maps.LatLng(lat,lng));
 			map.fitBounds(bounds);
+			map.setCenter(bounds.getCenter());
 		},
 
 		callback : function(results, status) {
@@ -126,7 +127,7 @@ $(function() {
 		ViewModel.setPins = function() {
 			self.locations().forEach(function(loc) {
 				if (loc.selected()) {
-					MapView.pinPoster(loc.name());
+					MapView.pinPoster(loc.name()+", NY");
 				}
 			});
 		};
@@ -146,7 +147,7 @@ $(function() {
 					if (loc.name().search(re) === -1) {
 						loc.selected(false);
 					} else {
-						MapView.pinPoster(loc.name());
+						MapView.pinPoster(loc.name()+", NY");
 					}
 				});
 				//Use visible binding!!!
@@ -197,7 +198,7 @@ $(function() {
 
 	AppView.init();
 	window.addEventListener('load', MapView.initMap);
-	//ViewModel.setPins();
+	ViewModel.setPins();
 });
 
 
