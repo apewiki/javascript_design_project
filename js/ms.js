@@ -60,6 +60,11 @@ $(function() {
 				zoom: 12,
 				disableDefaultUI: true
 			});
+			console.log("No of places selected:" + ViewModel.getPlaces().length);
+			var places = ViewModel.getPlaces();
+			places.forEach(function(loc) {
+				MapView.pinPoster(loc);
+			})
 			console.log("initMap is called");
 		},
 
@@ -125,6 +130,7 @@ $(function() {
 		});
 
 		ViewModel.setPins = function() {
+
 			self.locations().forEach(function(loc) {
 				if (loc.selected()) {
 					MapView.pinPoster(loc.name()+", NY");
@@ -163,11 +169,18 @@ $(function() {
 		};
 
 		ViewModel.getPlaces = function() {
-			return self.locations();
+			var retArr = [];
+			self.locations().forEach(function(loc) {
+				if (loc.selected()) {
+					retArr.push(loc.name()+", NY");
+				}
+			});
+			return retArr;
 		}
 	};
 
-	ko.applyBindings(new ViewModel());
+	var viewModel = new ViewModel();
+	ko.applyBindings(viewModel);
 
 	var AppView =  {
 
@@ -198,7 +211,7 @@ $(function() {
 
 	AppView.init();
 	window.addEventListener('load', MapView.initMap);
-	ViewModel.setPins();
+	//ViewModel.setPins();
 });
 
 
