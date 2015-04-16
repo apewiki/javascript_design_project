@@ -1,16 +1,17 @@
 $(function() {
 
 	var map;
+	var markers=[];
 	var initLocations = [
 		{
 			'name':'Central Park',
-			'category':'placeOfInterest',
+			'category':'park',
 			'selected': false
 		},
 
 		{
 			'name':'Penn Station',
-			'category':'transit',
+			'category':'train_station',
 			'selected':true
 		},
 
@@ -28,7 +29,7 @@ $(function() {
 
 		{
 			'name': 'Grand Central',
-			'category': 'transit',
+			'category': 'train_station',
 			'selected':true
 		},
 
@@ -61,11 +62,15 @@ $(function() {
 				disableDefaultUI: true
 			});
 			console.log("No of places selected:" + ViewModel.getPlaces().length);
+			MapView.setAllMarkers();
+			console.log("initMap is called");
+		},
+
+		setAllMarkers: function() {
 			var places = ViewModel.getPlaces();
 			places.forEach(function(loc) {
 				MapView.pinPoster(loc);
-			})
-			console.log("initMap is called");
+			});
 		},
 
 		pinPoster : function(location) {
@@ -91,11 +96,12 @@ $(function() {
 			var bounds = new google.maps.LatLngBounds();
 
 
-			var market = new google.maps.Marker({
+			var marker = new google.maps.Marker({
 				position: placeData.geometry.location,
 				map: map,
 				title: placeData.formatted_address
 			})
+			markers.push(marker);
 
 			bounds.extend(new google.maps.LatLng(lat,lng));
 			map.fitBounds(bounds);
@@ -111,6 +117,17 @@ $(function() {
 					MapView.createMarker(results[r]);
 				}
 			}
+		},
+
+		clearMarkers: function() {
+			markers.forEach(function(marker) {
+				marker.setMap(null);
+			})
+		},
+
+		deleteMarkers: function() {
+			MapView.clearMarkers();
+			markers = [];
 		}
 	};
 
@@ -133,7 +150,7 @@ $(function() {
 
 			self.locations().forEach(function(loc) {
 				if (loc.selected()) {
-					MapView.pinPoster(loc.name()+", NY");
+					MapView.pinPoster(loc.name()+", New York");
 				}
 			});
 		};
@@ -142,18 +159,21 @@ $(function() {
 			self.locations().forEach(function(loc) {
 				loc.selected(true);
 			});
+			MapView.setAllMarkers();
 		};
 
 		ViewModel.searchPlace = function (search_term) {
 			console.log("In Search:"+search_term);
+
 			var re = new RegExp(search_term, "i");
 
 			if (search_term.length>0) {
+				MapView.deleteMarkers();
 				self.locations().forEach(function(loc) {
 					if (loc.name().search(re) === -1) {
 						loc.selected(false);
 					} else {
-						MapView.pinPoster(loc.name()+", NY");
+						MapView.pinPoster(loc.name()+", New York");
 					}
 				});
 				//Use visible binding!!!
