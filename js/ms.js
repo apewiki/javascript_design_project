@@ -2,6 +2,8 @@ $(function() {
 
 	var map;
 	var markers=[];
+	var bounds;
+
 	var initLocations = [
 		{
 			'name':'Central Park',
@@ -56,11 +58,13 @@ $(function() {
 
 		initMap : function() {
 
-				map = new google.maps.Map(document.getElementById('map'), {
+			map = new google.maps.Map(document.getElementById('map'), {
 				center: {lat: 40.7033, lng:-73.9797},
 				zoom: 12,
 				disableDefaultUI: true
 			});
+			bounds = new google.maps.LatLngBounds();
+
 			console.log("No of places selected:" + ViewModel.getPlaces().length);
 			MapView.setAllMarkers();
 			console.log("initMap is called");
@@ -93,12 +97,21 @@ $(function() {
 			console.log("in createMakrker:"+placeData);
 			var lat = placeData.geometry.location.lat();
 			var lng = placeData.geometry.location.lng();
-			var bounds = new google.maps.LatLngBounds();
 
+			var image = {
+				url: placeData.icon,
+				size: new google.maps.Size(71, 71),
+				origin: new google.maps.Point(0,0),
+				anchor: new google.maps.Point(17, 34),
+				scaledSize: new google.maps.Size(25,25)
+			};
+			
 
 			var marker = new google.maps.Marker({
 				position: placeData.geometry.location,
 				map: map,
+				icon: image,
+				animation: google.maps.Animation.DROP,
 				title: placeData.formatted_address
 			})
 			markers.push(marker);
@@ -106,6 +119,20 @@ $(function() {
 			bounds.extend(new google.maps.LatLng(lat,lng));
 			map.fitBounds(bounds);
 			map.setCenter(bounds.getCenter());
+
+			var infowindow = new google.maps.InfoWindow();
+
+			google.maps.event.addListener(marker, 'click', function() {
+				infowindow.setContent(placeData.name);
+				infowindow.open(map, marker);
+				marker.setAnimation(google.maps.Animation.BOUNCE);
+			});
+
+			google.maps.event.addListener(infowindow,'closeclick', function() {
+				if (marker.getAnimation() != null) {
+					marker.setAnimation(null);
+				}
+			});
 		},
 
 		callback : function(results, status) {
