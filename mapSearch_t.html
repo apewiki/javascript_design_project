@@ -7,11 +7,17 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-3.1.0.js"></script>
     <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
-
+    <script type="js/node_module/oauth-signature/src/app/oauth-signature.js"></script>
     <script src="js/ms.js"></script>
     <link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body>
+	<ul class="head">
+		<li> Top Food </li>
+		<li> Hotels </li>
+		<li> Places of Interest </li>
+		<li> Transit</li>
+	</ul>
 	<form id="search_form">
 		<input type="text" id="search_term" data-bind="text: search_term">
 		<h4>Loations</h4>
