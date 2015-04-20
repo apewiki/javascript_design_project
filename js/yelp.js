@@ -1,18 +1,18 @@
 function loadData() {
 
-    var YELP_KEY = "bv-f4fN8pfiBGodIp824VA";
-    var YELP_KEY_SECRET = "Lmq4G67yJ8avCfy6LqCaxFiEm1E";
-    var YELP_TOKEN = "LYJpN3oRpnxpBpxcEOJycgEfdVgfG9gu";
-    var YELP_TOKEN_SECRET = "SDcj6qnDh9wdajeZQUGbJ2CslWE";
+    const YELP_KEY = 'bv-f4fN8pfiBGodIp824VA';
+    const YELP_KEY_SECRET = 'Lmq4G67yJ8avCfy6LqCaxFiEm1E';
+    const YELP_TOKEN = '-rBzvZN5TaldkdYTsM_vv4SDm8lvOVZM';
+    const YELP_TOKEN_SECRET = 'x9rkfFF6cKAnNJgz5oR5GsH_pew';
 
     var $body = $('body');
-    var $wikiElem = $('#wikipedia-links');
+    var $yelpElem = $('#wikipedia-links');
     var $nytHeaderElem = $('#nytimes-header');
     var $nytElem = $('#nytimes-articles');
     var $greeting = $('#greeting');
 
     // clear out old data before new request
-    $wikiElem.text("");
+    $yelpElem.text("");
     $nytElem.text("");
 
     var streetStr = $('#street').val();
@@ -47,39 +47,51 @@ function loadData() {
 
 
 
-    // load wikipedia data
-    var wikiUrl = "http://api.yelp.com/v2/search?term=food&location=New+York&limit=1";
-    var wikiRequestTimeout = setTimeout(function(){
-        $wikiElem.text("failed to get yelp resources");
+    // load yelp data
+    var yelp_url = "http://api.yelp.com/v2/search";
+    var yelpRequestTimeout = setTimeout(function(){
+        $yelpElem.text("failed to get yelp resources");
     }, 8000);
 
-    var nounce = Math.floor(Math.random() * 1e12).toString();
+    var nonce = (Math.floor(Math.random() * 1e12).toString());
     var parameters = {
-        oauth_consumer: YELP_KEY,
+        oauth_consumer_key: YELP_KEY,
         oauth_token: YELP_TOKEN,
-        oauth_nounce: nounce,
+        oauth_nonce: nonce,
         oauth_timestamp: Math.floor(Date.now()/1000),
         oauth_signature_method: 'HMAC-SHA1',
         oauth_version: '1.0',
-        callback: 'cb'
+        callback: 'cb',
+        location: 'Manhattan, NY',
+        term: 'food',
+        category_filter: 'restaurants',
+        limit: 10,
+        sort: 2
     };
 
     var encodedSignature = oauthSignature.generate('GET', yelp_url, parameters,
         YELP_KEY_SECRET, YELP_TOKEN_SECRET);
     parameters.oauth_signature = encodedSignature;
+    console.log("obtaining encodedSignature:"+encodedSignature);
 
 
     $.ajax({
-        url: wikiUrl,
-        dataType: "jsonp",
-        jsonp: "callback",
+        url: yelp_url,
         data: parameters,
         cache: true,
+        dataType: "jsonp",
+        jsonp: "callback",
         success: function( response ) {
-            var bizname = response.businesses.name;
-            var bizurl = response.businesses.url;
-            $wikiElem.append('<li><a href="' + bizurl + '">' + bizname + '</a></li>');
+            for (var i = 0; i<response.businesses.length; i++) {
+                var bizname = response.businesses[i].name;
+                var bizurl = response.businesses[i].url;
+                console.log(bizname);
+                $yelpElem.append('<li><a href="' + bizurl + '">' + bizname + '</a></li>');
+            }
+            
+            clearTimeout(yelpRequestTimeout);
         }
+
     });
 
     return false;
