@@ -3,8 +3,17 @@ $(function() {
 	var map;
 	var markers=[];
 	var bounds;
+	var errMsg;
 
-	var initLocations = [
+	const YELP_KEY = 'bv-f4fN8pfiBGodIp824VA';
+    const YELP_KEY_SECRET = 'Lmq4G67yJ8avCfy6LqCaxFiEm1E';
+    const YELP_TOKEN = '-rBzvZN5TaldkdYTsM_vv4SDm8lvOVZM';
+    const YELP_TOKEN_SECRET = 'x9rkfFF6cKAnNJgz5oR5GsH_pew';
+    const MYLOCATION = 'New York, NY';
+
+    var initLocations=[];
+
+	/*var initLocations = [
 		{
 			'name':'Central Park',
 			'category':'park',
@@ -40,12 +49,13 @@ $(function() {
 			'category': 'placeOfInterest',
 			'selected':true
 		}
-	];
+	];*/
 
 	var Model = {
 		places: initLocations,
 		search_term: ""
 	}
+
 
 	var Place = function(data) {
 		this.name = ko.observable(data.name);
@@ -105,7 +115,7 @@ $(function() {
 				anchor: new google.maps.Point(17, 34),
 				scaledSize: new google.maps.Size(25,25)
 			};
-			
+
 
 			var marker = new google.maps.Marker({
 				position: placeData.geometry.location,
@@ -168,6 +178,9 @@ $(function() {
 
 		});
 
+
+		console.log("Number of initial locations:"+initLocations.length);
+
 		console.log(self.locations().length);
 		self.locations().forEach(function(loc) {
 			console.log(loc.name() + ':' +loc.category() + ":"+loc.selected());
@@ -183,11 +196,19 @@ $(function() {
 		};
 
 		ViewModel.reset = function() {
-			self.locations().forEach(function(loc) {
-				loc.selected(true);
-			});
-			MapView.setAllMarkers();
+				self.locations().forEach(function(loc) {
+					loc.selected(true);
+				});
+				MapView.setAllMarkers();
 		};
+
+		ViewModel.reload = function() {
+			self.locations = ko.observableArray([]);
+			initLocations.forEach(function(loc) {
+				self.locations.push(new Place(loc));
+
+			});
+		}
 
 		ViewModel.searchPlace = function (search_term) {
 			console.log("In Search:"+search_term);
@@ -223,11 +244,68 @@ $(function() {
 				}
 			});
 			return retArr;
-		}
+		};
 	};
 
-	var viewModel = new ViewModel();
-	ko.applyBindings(viewModel);
+	var loadFood = function() {
+			var yelp_url = "http://api.yelp.com/v2/search";
+		   // var yelpRequestTimeout = setTimeout(function(){
+		   //     errMsg = "failed to get yelp resources";
+		    //}, 8000);
+
+		    var nonce = (Math.floor(Math.random() * 1e12).toString());
+		    var parameters = {
+		        oauth_consumer_key: YELP_KEY,
+		        oauth_token: YELP_TOKEN,
+		        oauth_nonce: nonce,
+		        oauth_timestamp: Math.floor(Date.now()/1000),
+		        oauth_signature_method: 'HMAC-SHA1',
+		        oauth_version: '1.0',
+		        callback: 'cb',
+		        location: MYLOCATION,
+		        //radius_filter: '10000',
+		        term: 'popular restaurants',
+		        category_filter: 'restaurants',
+		        limit: 10,
+		        sort: 2
+		    };
+
+		    var encodedSignature = oauthSignature.generate('GET', yelp_url, parameters,
+		        YELP_KEY_SECRET, YELP_TOKEN_SECRET);
+		    parameters.oauth_signature = encodedSignature;
+		    console.log("obtaining encodedSignature:"+encodedSignature);
+
+
+		    $.ajax({
+		        url: yelp_url,
+		        data: parameters,
+		        cache: true,
+		        dataType: "jsonp",
+		        jsonp: "callback",
+		        success: function( response ) {
+		            for (var i = 0; i<response.businesses.length; i++) {
+		                var bizname = response.businesses[i].name;
+		                var bizurl = response.businesses[i].url;
+		                console.log(bizname);
+		               	initLocations.push({
+		               		'name':bizname,
+		               		'category':'restaurants',
+		               		'selected': true
+		               	});
+		            }
+		            console.log("After AJAX call:"+initLocations.length);
+
+		            //clearTimeout(yelpRequestTimeout);
+		        }
+
+		    });
+
+	};
+
+
+
+
+
 
 	var AppView =  {
 
@@ -235,10 +313,11 @@ $(function() {
 
 		init: function() {
 			document.getElementById("search_term").addEventListener("keyup", AppView.getSearchTerm);
+			document.getElementById("topFood").addEventListener("click", loadFood);
 			$("#search_form").submit(function(e) {
 				var term = document.getElementById("search_term").value;
 				console.log("submit is called:"+term);
-				ViewModel.setSearchTerm(term);
+				v.setSearchTerm(term);
 				e.preventDefault();
 			})
 		},
@@ -250,12 +329,14 @@ $(function() {
 			e.preventDefault();
 		}
 
-
-
 	};
 
+	loadFood();
+	console.log("After loadFood(): "+initLocations.length);
 
-
+	var viewModel = new ViewModel();
+	//ViewModel.reload();
+	ko.applyBindings(viewModel);
 	AppView.init();
 	window.addEventListener('load', MapView.initMap);
 	//ViewModel.setPins();

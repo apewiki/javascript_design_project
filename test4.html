@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Test testInput Binding</title>
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-3.1.0.js"></script>
+
+</head>
+<body>
+	<form>
+		<input type="text" id="input_field" data-bind="text: myInput, event:{keyup: capture}">
+		<p>Your input is: <span data-bind="text: last_input"></span></p>
+	</form>
+<script>
+	var ViewModel= function() {
+		var self = this;
+		self.last_input = ko.observable('');
+		self.myInput = ko.observable('');
+		console.log("Created: "+self.myInput());
+		self.capture = function(data, event) {
+			self.last_input("captured!");
+			console.log("capture is called" +data());
+			event.preventDefault();
+		}
+	}
+	ko.applyBindings(new ViewModel());
+</script>
+</body>
+</html>

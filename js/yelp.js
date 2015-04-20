@@ -62,8 +62,9 @@ function loadData() {
         oauth_signature_method: 'HMAC-SHA1',
         oauth_version: '1.0',
         callback: 'cb',
-        location: 'Manhattan, NY',
-        term: 'food',
+        location: 'New York, NY',
+        //radius_filter: '10000',
+        term: 'popular restaurants',
         category_filter: 'restaurants',
         limit: 10,
         sort: 2
@@ -88,7 +89,7 @@ function loadData() {
                 console.log(bizname);
                 $yelpElem.append('<li><a href="' + bizurl + '">' + bizname + '</a></li>');
             }
-            
+
             clearTimeout(yelpRequestTimeout);
         }
 
