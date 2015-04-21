@@ -57,10 +57,10 @@ $(function() {
 	}
 
 
-	var Place = function(data) {
-		this.name = ko.observable(data.name);
-		this.category = ko.observable(data.category);
-		this.selected= ko.observable(data.selected);
+	var Place = function(name, category,selected) {
+		this.name = ko.observable(name);
+		this.category = ko.observable(category);
+		this.selected= ko.observable(selected);
 	};
 
 	var MapView = {
@@ -172,82 +172,16 @@ $(function() {
 		var self = this;
 		self.search_term = ko.observable("");
 		self.locations = ko.observableArray([]);
+		self.loadFood();
 
-		initLocations.forEach(function(loc) {
-			self.locations.push(new Place(loc));
-
-		});
-
-
-		console.log("Number of initial locations:"+initLocations.length);
+		self.search_term = ko.observable("");
 
 		console.log(self.locations().length);
 		self.locations().forEach(function(loc) {
 			console.log(loc.name() + ':' +loc.category() + ":"+loc.selected());
 		});
 
-		ViewModel.setPins = function() {
-
-			self.locations().forEach(function(loc) {
-				if (loc.selected()) {
-					MapView.pinPoster(loc.name()+", New York");
-				}
-			});
-		};
-
-		ViewModel.reset = function() {
-				self.locations().forEach(function(loc) {
-					loc.selected(true);
-				});
-				MapView.setAllMarkers();
-		};
-
-		ViewModel.reload = function() {
-			self.locations = ko.observableArray([]);
-			initLocations.forEach(function(loc) {
-				self.locations.push(new Place(loc));
-
-			});
-		}
-
-		ViewModel.searchPlace = function (search_term) {
-			console.log("In Search:"+search_term);
-
-			var re = new RegExp(search_term, "i");
-
-			if (search_term.length>0) {
-				MapView.deleteMarkers();
-				self.locations().forEach(function(loc) {
-					if (loc.name().search(re) === -1) {
-						loc.selected(false);
-					} else {
-						MapView.pinPoster(loc.name()+", New York");
-					}
-				});
-				//Use visible binding!!!
-			} else {
-				ViewModel.reset();
-			}
-
-		};
-
-		ViewModel.setSearchTerm = function(search_term) {
-			self.search_term(search_term);
-			console.log("In setSearchTerm:"+self.search_term());
-		};
-
-		ViewModel.getPlaces = function() {
-			var retArr = [];
-			self.locations().forEach(function(loc) {
-				if (loc.selected()) {
-					retArr.push(loc.name()+", NY");
-				}
-			});
-			return retArr;
-		};
-	};
-
-	var loadFood = function() {
+		self.loadFood = function() {
 			var yelp_url = "http://api.yelp.com/v2/search";
 		   // var yelpRequestTimeout = setTimeout(function(){
 		   //     errMsg = "failed to get yelp resources";
@@ -287,11 +221,7 @@ $(function() {
 		                var bizname = response.businesses[i].name;
 		                var bizurl = response.businesses[i].url;
 		                console.log(bizname);
-		               	initLocations.push({
-		               		'name':bizname,
-		               		'category':'restaurants',
-		               		'selected': true
-		               	});
+		               	self.locations().push(new Place(bizname,'restaurants',true));
 		            }
 		            console.log("After AJAX call:"+initLocations.length);
 
@@ -300,6 +230,64 @@ $(function() {
 
 		    });
 
+		};
+
+		self.setPins = function() {
+
+			self.locations().forEach(function(loc) {
+				if (loc.selected()) {
+					MapView.pinPoster(loc.name()+", New York");
+				}
+			});
+		};
+
+		self.reset = function() {
+				self.locations().forEach(function(loc) {
+					loc.selected(true);
+				});
+				MapView.setAllMarkers();
+		};
+
+		self.reload = function() {
+			self.locations = ko.observableArray([]);
+			self.loadFood();
+		}
+
+		self.searchPlace = function () {
+			console.log("In Search:"+self.search_term);
+
+			var re = new RegExp(self.search_term, "i");
+
+			if (self.search_term.length>0) {
+				MapView.deleteMarkers();
+				self.locations().forEach(function(loc) {
+					if (loc.name().search(re) === -1) {
+						loc.selected(false);
+					} else {
+						MapView.pinPoster(loc.name()+", New York");
+					}
+				});
+				//Use visible binding!!!
+			} else {
+				self.reset();
+			}
+
+		};
+
+		self.setSearchTerm = function(search_term) {
+			self.search_term(search_term);
+			console.log("In setSearchTerm:"+self.search_term());
+		};
+
+		ViewModel.getPlaces = function() {
+			var retArr = [];
+			self.locations().forEach(function(loc) {
+				if (loc.selected()) {
+					retArr.push(loc.name()+", NY");
+				}
+			});
+			return retArr;
+		};
 	};
 
 
@@ -307,7 +295,9 @@ $(function() {
 
 
 
-	var AppView =  {
+
+
+	/*var AppView =  {
 
 
 
@@ -330,14 +320,13 @@ $(function() {
 		}
 
 	};
-
-	loadFood();
-	console.log("After loadFood(): "+initLocations.length);
+*/
+	
 
 	var viewModel = new ViewModel();
 	//ViewModel.reload();
 	ko.applyBindings(viewModel);
-	AppView.init();
+	//AppView.init();
 	window.addEventListener('load', MapView.initMap);
 	//ViewModel.setPins();
 });

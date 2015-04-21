@@ -5,7 +5,7 @@
 	<meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-3.1.0.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
     <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
     <script src="node_modules/oauth-signature/dist/oauth-signature.js"></script>
     <script src="js/ms.js"></script>
@@ -19,7 +19,7 @@
 		<li if="transits"> Transits</li>
 	</ul>
 	<form id="search_form">
-		<input type="text" id="search_term" data-bind="text: search_term">
+		<input id="search_term" data-bind="textInput: search_term">
 		<h4>Loations</h4>
 		<ul data-bind="foreach: locations">
 		    <li data-bind="visible: selected">
