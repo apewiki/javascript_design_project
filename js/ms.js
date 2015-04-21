@@ -11,56 +11,16 @@ $(function() {
     const YELP_TOKEN_SECRET = 'x9rkfFF6cKAnNJgz5oR5GsH_pew';
     const MYLOCATION = 'New York, NY';
 
-    var initLocations=[];
 
-	/*var initLocations = [
-		{
-			'name':'Central Park',
-			'category':'park',
-			'selected': false
-		},
-
-		{
-			'name':'Penn Station',
-			'category':'train_station',
-			'selected':true
-		},
-
-		{
-			'name': 'Olive Garden',
-			'category': 'restuarant',
-			'selected':true
-		},
-
-		{
-			'name': 'Morimoto',
-			'category': 'restuarant',
-			'selected':true
-		},
-
-		{
-			'name': 'Grand Central',
-			'category': 'train_station',
-			'selected':true
-		},
-
-		{
-			'name':'Rockefeller Center',
-			'category': 'placeOfInterest',
-			'selected':true
-		}
-	];*/
-
-	var Model = {
-		places: initLocations,
-		search_term: ""
-	}
-
-
-	var Place = function(name, category,selected) {
+	var Place = function(name, category,selected, address,url, rating, rating_img_url, snippet) {
 		this.name = ko.observable(name);
 		this.category = ko.observable(category);
 		this.selected= ko.observable(selected);
+		this.address = ko.observable(address);
+		this.url = ko.observable(url);
+		this.rating = ko.observable(rating);
+		this.rating_img = ko.observable(rating_img_url);
+		this.snippet = ko.observable(snippet);
 	};
 
 	var MapView = {
@@ -83,19 +43,24 @@ $(function() {
 		setAllMarkers: function() {
 			var places = ViewModel.getPlaces();
 			places.forEach(function(loc) {
-				MapView.pinPoster(loc);
+				console.log("in setAll Markers:" + loc);
+				MapView.pinPoster(loc.name, loc.category, loc.address);
 			});
 		},
 
-		pinPoster : function(location) {
+		pinPoster : function(name, category, location) {
 			if (map) {
 				var service = new google.maps.places.PlacesService(map);
+				var type_string = [];
+				type_string.push(category);
 
 				var request = {
-					bounds: map.getBounds(),
-					query: location
+					location: map.getCenter(),
+					radius: '1000',
+					query: name,
+					types: type_string
 				};
-				console.log("in pinPoster:"+location);
+				console.log("in pinPoster:"+name+":"+ location + category);
 				service.textSearch(request, MapView.callback);
 			} else {
 				console.log("no map to post pins!");
@@ -104,7 +69,7 @@ $(function() {
 		},
 
 		createMarker : function (placeData) {
-			console.log("in createMakrker:"+placeData);
+			console.log("in createMakrker: "+placeData.name);
 			var lat = placeData.geometry.location.lat();
 			var lng = placeData.geometry.location.lng();
 
@@ -123,17 +88,34 @@ $(function() {
 				icon: image,
 				animation: google.maps.Animation.DROP,
 				title: placeData.formatted_address
-			})
+			});
+
 			markers.push(marker);
 
 			bounds.extend(new google.maps.LatLng(lat,lng));
 			map.fitBounds(bounds);
 			map.setCenter(bounds.getCenter());
 
+
 			var infowindow = new google.maps.InfoWindow();
 
 			google.maps.event.addListener(marker, 'click', function() {
-				infowindow.setContent(placeData.name);
+				var service = new google.maps.places.PlacesService(map);
+				var request = {
+					placeId: placeData.place_id
+				};
+				service.getDetails(request, callback);
+
+				function callback(place, status) {
+					var infoContent = '';
+					if (status == google.maps.places.PlacesServiceStatus.OK) {
+						infoContent = "<a href="+place.website+">"+place.name+"</a>"+" Tel: "+ place.formatted_phone_number;
+						console.log(infoContent);
+					} else {
+						infoContent = placeData.name;
+					}
+					infowindow.setContent(infoContent);
+				}
 				infowindow.open(map, marker);
 				marker.setAnimation(google.maps.Animation.BOUNCE);
 			});
@@ -220,8 +202,13 @@ $(function() {
 		            for (var i = 0; i<response.businesses.length; i++) {
 		                var bizname = response.businesses[i].name;
 		                var bizurl = response.businesses[i].url;
+		                var bizRating = response.businesses[i].rating;
+		                var rating_img_url = response.businesses[i].rating_img_url_small;
+		                var bizSnippet = response.businesses[i].snippet_text;
+		                var bizAddress = response.businesses[i].location.display_address;
 		                console.log(bizname);
-		               	self.locations.push(new Place(bizname,'restaurants',true));
+		               	self.locations.push(new Place(bizname,'restaurants',true, bizAddress, bizurl, bizRating,
+		               		rating_img_url, bizSnippet));
 		            }
 		            console.log("After AJAX call:"+self.locations().length);
 
@@ -232,14 +219,6 @@ $(function() {
 
 		};
 
-		self.setPins = function() {
-
-			self.locations().forEach(function(loc) {
-				if (loc.selected()) {
-					MapView.pinPoster(loc.name()+", New York");
-				}
-			});
-		};
 
 		self.reset = function() {
 				self.locations().forEach(function(loc) {
@@ -251,7 +230,7 @@ $(function() {
 		self.reload = function() {
 			self.locations = ko.observableArray([]);
 			loadFood();
-		}
+		};
 
 		self.searchPlace = function () {
 			console.log("In Search:"+self.search_term());
@@ -264,7 +243,7 @@ $(function() {
 					if (loc.name().search(re) === -1) {
 						loc.selected(false);
 					} else {
-						MapView.pinPoster(loc.name()+", New York");
+						MapView.pinPoster(loc.name(), loc.category(), loc.address());
 					}
 				});
 				//Use visible binding!!!
@@ -281,11 +260,19 @@ $(function() {
 			return false;
 		};
 
+		self.showDetail = function() {
+			console.log("!!!!!In showWindow: "+this.name());
+		};
+
 		ViewModel.getPlaces = function() {
 			var retArr = [];
 			self.locations().forEach(function(loc) {
 				if (loc.selected()) {
-					retArr.push(loc.name()+", NY");
+					retArr.push({
+						"name": loc.name(),
+						"category": "restaurant",
+						"address": loc.address()
+					});
 				}
 			});
 			return retArr;

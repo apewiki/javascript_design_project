@@ -25,7 +25,7 @@
 		<ul data-bind="foreach: locations">
 		    <li data-bind="visible: selected">
 		        Name at position <span data-bind="text: $index"> </span>:
-		        <span data-bind="text: name"> </span>
+		        <span data-bind="text: name, click: $parent.showDetail"> </span>
 		    </li>
 		</ul>
 	</form>
