@@ -150,7 +150,7 @@ $(function() {
 			if (status == google.maps.places.PlacesServiceStatus.OK) {
 				console.log("in callback, number of results:"+results.length);
 				for (var r in results) {
-					console.log(results[r]);
+					//console.log(results[r]);
 					MapView.createMarker(results[r]);
 				}
 			}
@@ -172,7 +172,7 @@ $(function() {
 		var self = this;
 		self.search_term = ko.observable("");
 		self.locations = ko.observableArray([]);
-		self.loadFood();
+		loadFood();
 
 		self.search_term = ko.observable("");
 
@@ -181,7 +181,7 @@ $(function() {
 			console.log(loc.name() + ':' +loc.category() + ":"+loc.selected());
 		});
 
-		self.loadFood = function() {
+		function loadFood() {
 			var yelp_url = "http://api.yelp.com/v2/search";
 		   // var yelpRequestTimeout = setTimeout(function(){
 		   //     errMsg = "failed to get yelp resources";
@@ -221,9 +221,9 @@ $(function() {
 		                var bizname = response.businesses[i].name;
 		                var bizurl = response.businesses[i].url;
 		                console.log(bizname);
-		               	self.locations().push(new Place(bizname,'restaurants',true));
+		               	self.locations.push(new Place(bizname,'restaurants',true));
 		            }
-		            console.log("After AJAX call:"+initLocations.length);
+		            console.log("After AJAX call:"+self.locations().length);
 
 		            //clearTimeout(yelpRequestTimeout);
 		        }
@@ -250,15 +250,15 @@ $(function() {
 
 		self.reload = function() {
 			self.locations = ko.observableArray([]);
-			self.loadFood();
+			loadFood();
 		}
 
 		self.searchPlace = function () {
-			console.log("In Search:"+self.search_term);
+			console.log("In Search:"+self.search_term());
 
-			var re = new RegExp(self.search_term, "i");
+			var re = new RegExp(self.search_term(), "i");
 
-			if (self.search_term.length>0) {
+			if (self.search_term().length>0) {
 				MapView.deleteMarkers();
 				self.locations().forEach(function(loc) {
 					if (loc.name().search(re) === -1) {
@@ -274,9 +274,11 @@ $(function() {
 
 		};
 
-		self.setSearchTerm = function(search_term) {
-			self.search_term(search_term);
-			console.log("In setSearchTerm:"+self.search_term());
+		self.redirect = function(data, event) {
+
+			console.log("$$$$$$$$$$In redirect:"+self.search_term());
+			//event.preventDefault();
+			return false;
 		};
 
 		ViewModel.getPlaces = function() {
@@ -321,11 +323,11 @@ $(function() {
 
 	};
 */
-	
+
 
 	var viewModel = new ViewModel();
-	//ViewModel.reload();
 	ko.applyBindings(viewModel);
+	//viewModel.reload();
 	//AppView.init();
 	window.addEventListener('load', MapView.initMap);
 	//ViewModel.setPins();

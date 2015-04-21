@@ -18,8 +18,9 @@
 		<li id="destinations"> Places of Interest </li>
 		<li if="transits"> Transits</li>
 	</ul>
-	<form id="search_form">
-		<input id="search_term" data-bind="textInput: search_term">
+	<form data-bind="submit:redirect">
+		<input id="search_term" data-bind="textInput: search_term, event:{keyup: searchPlace}">
+		<button type="submit" class="btn-noshow"></button>
 		<h4>Loations</h4>
 		<ul data-bind="foreach: locations">
 		    <li data-bind="visible: selected">

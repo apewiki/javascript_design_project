@@ -10,15 +10,15 @@
 </head>
 <body>
 	<form data-bind="submit: present">
-		<p>Login name: <input data-bind="textInput: userName" /></p>
+		<p>Login name: <input data-bind="textInput: userName, event: {keyup: present}" /></p>
 		<p>Password: <input type="password" data-bind="textInput: userPassword" /></p>
 		<button type = "submit" style = "display: none"></button>
-		
+
 	</form>
 	You submitted:<p data-bind="text: credentials"></p>
 	ViewModel:
 	<pre data-bind="text: ko.toJSON($root, null, 2)"></pre>
- 
+
 <script>
 //Two ways of defining the object
 	/*var viewModel = {
@@ -45,7 +45,7 @@
     	};
     }
     ko.applyBindings(new ViewModel());
-        
+
 </script>
 </body>
 </html>

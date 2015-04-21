@@ -9,3 +9,7 @@
 .head li {
 	width: 33%;
 }
+
+.btn-noshow {
+	display: none;
+}
