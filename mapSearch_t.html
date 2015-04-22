@@ -14,11 +14,14 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 </head>
 <body>
-	<ul class="head">
+	<ul class="head" data-bind="foreach: infoTypes">
+		<li><b data-bind="text: $data, click: $root.getInfoType"></b></li>
+	<!--
 		<li id="topFood"> Top Food </li>
 		<li id="hotels"> Hotels </li>
 		<li id="destinations"> Places of Interest </li>
 		<li if="transits"> Transits</li>
+	-->
 	</ul>
 	<form data-bind="submit:redirect">
 		<input id="search_term" data-bind="textInput: search_term, event:{keyup: searchPlace}">

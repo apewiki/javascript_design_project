@@ -155,7 +155,11 @@ $(function() {
 		var self = this;
 		self.search_term = ko.observable("");
 		self.locations = ko.observableArray([]);
-		loadFood();
+		self.type = ko.observable("restaurant");
+		self.filter = "restaurants";
+		self.google_types = 'restaurant';
+		self.infoTypes = ['Restaurant', 'Cafe', 'Ice Cream', 'Shopping'];
+		loadPlaces();
 
 		self.search_term = ko.observable("");
 
@@ -164,7 +168,7 @@ $(function() {
 			console.log(loc.name() + ':' +loc.category() + ":"+loc.selected());
 		});
 
-		function loadFood() {
+		function loadPlaces() {
 			var yelp_url = "http://api.yelp.com/v2/search";
 		   // var yelpRequestTimeout = setTimeout(function(){
 		   //     errMsg = "failed to get yelp resources";
@@ -181,11 +185,14 @@ $(function() {
 		        callback: 'cb',
 		        location: MYLOCATION,
 		        //radius_filter: '10000',
-		        term: 'popular restaurants',
-		        category_filter: 'restaurants',
+		        term: 'popular '+ self.type(),
+		        //category_filter: 'restaurants',
 		        limit: 10,
 		        sort: 2
 		    };
+		    if (self.filter.length) {
+		    	parameters.category_filter = self.filter;
+		    }
 
 		    var encodedSignature = oauthSignature.generate('GET', yelp_url, parameters,
 		        YELP_KEY_SECRET, YELP_TOKEN_SECRET);
@@ -208,10 +215,11 @@ $(function() {
 		                var bizSnippet = response.businesses[i].snippet_text;
 		                var bizAddress = response.businesses[i].location.display_address;
 		                console.log(bizname);
-		               	self.locations.push(new Place(bizname,'restaurant',true, bizAddress, bizurl, bizRating,
+		               	self.locations.push(new Place(bizname,self.type(), true, bizAddress, bizurl, bizRating,
 		               		rating_img_url, bizSnippet));
+		               	console.log("After AJAX call:"+self.locations().length);
 		            }
-		            console.log("After AJAX call:"+self.locations().length);
+
 
 		            //clearTimeout(yelpRequestTimeout);
 		        }
@@ -219,6 +227,32 @@ $(function() {
 		    });
 
 		};
+
+		self.getInfoType = function() {
+
+			self.type(this);
+			console.log("In getInfoType: "+self.type());
+			switch(this) {
+				case 'Restaurant':
+					self.filter = 'Restaurants';
+					self.google_types = 'restaurant';
+					break;
+				case 'Cafe':
+					self.filter = '';
+					self.google_types = ['cafe'];
+				case 'Shopping':
+					self.filter = 'Shopping';
+					self.google_types = [];
+				case 'Ice Cream':
+					self.filter = '';
+					self.google_types = ['food'];
+			}
+			self.locations.removeAll();
+			loadPlaces();
+			console.log("In getInfoType: " + self.locations.length);
+			MapView.deleteMarkers();
+			MapView.setAllMarkers();
+		}
 
 
 		self.reset = function() {
@@ -230,7 +264,7 @@ $(function() {
 
 		self.reload = function() {
 			self.locations = ko.observableArray([]);
-			loadFood();
+			loadPlaces();
 		};
 
 		self.searchPlace = function () {
@@ -244,6 +278,7 @@ $(function() {
 					if (loc.name().search(re) === -1) {
 						loc.selected(false);
 					} else {
+						loc.selected(true);
 						MapView.pinPoster(loc.name(), loc.category(), loc.address());
 					}
 				});
@@ -289,7 +324,7 @@ $(function() {
 				if (loc.selected()) {
 					retArr.push({
 						"name": loc.name(),
-						"category": "restaurant",
+						"category": self.type(),
 						"address": loc.address()
 					});
 				}
