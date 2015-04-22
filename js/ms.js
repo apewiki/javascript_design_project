@@ -56,7 +56,7 @@ $(function() {
 
 				var request = {
 					location: map.getCenter(),
-					radius: '1000',
+					radius: '5000',
 					query: name,
 					types: type_string
 				};
@@ -109,7 +109,7 @@ $(function() {
 				function callback(place, status) {
 					var infoContent = '';
 					if (status == google.maps.places.PlacesServiceStatus.OK) {
-						infoContent = "<a href="+place.website+">"+place.name+"</a>"+" Tel: "+ place.formatted_phone_number;
+						infoContent = "<a href="+place.website+" target='_blank'>"+place.name+"</a> Tel: "+ place.formatted_phone_number;
 						console.log(infoContent);
 					} else {
 						infoContent = placeData.name;
@@ -131,11 +131,12 @@ $(function() {
 			console.log("callback stauts:" + status);
 			if (status == google.maps.places.PlacesServiceStatus.OK) {
 				console.log("in callback, number of results:"+results.length);
+				MapView.createMarker(results[0]);
+				/*
 				for (var r in results) {
 					//console.log(results[r]);
 					MapView.createMarker(results[r]);
-				}
-			}
+				*/			}
 		},
 
 		clearMarkers: function() {
@@ -207,7 +208,7 @@ $(function() {
 		                var bizSnippet = response.businesses[i].snippet_text;
 		                var bizAddress = response.businesses[i].location.display_address;
 		                console.log(bizname);
-		               	self.locations.push(new Place(bizname,'restaurants',true, bizAddress, bizurl, bizRating,
+		               	self.locations.push(new Place(bizname,'restaurant',true, bizAddress, bizurl, bizRating,
 		               		rating_img_url, bizSnippet));
 		            }
 		            console.log("After AJAX call:"+self.locations().length);
@@ -260,8 +261,26 @@ $(function() {
 			return false;
 		};
 
+		$( "#dialog" ).dialog({
+	      autoOpen: false,
+	      show: {
+	        effect: "blind",
+	        duration: 1000
+	      },
+	      hide: {
+	        effect: "explode",
+	        duration: 1000
+	      }
+	    });
+
+
+
 		self.showDetail = function() {
 			console.log("!!!!!In showWindow: "+this.name());
+			$('#dialog').empty();
+			$('#dialog').append("<p>"+this.name()+" Yelp Rating:"+this.rating()+"</p>");
+			$('#dialog').append("<p>"+this.snippet()+"</p>");
+			$("#dialog").dialog("open");
 		};
 
 		ViewModel.getPlaces = function() {

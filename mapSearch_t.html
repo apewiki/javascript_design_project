@@ -5,11 +5,13 @@
 	<meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
     <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
     <script src="node_modules/oauth-signature/dist/oauth-signature.js"></script>
     <script src="js/ms.js"></script>
     <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 </head>
 <body>
 	<ul class="head">
@@ -26,9 +28,12 @@
 		    <li data-bind="visible: selected">
 		        Name at position <span data-bind="text: $index"> </span>:
 		        <span data-bind="text: name, click: $parent.showDetail"> </span>
+		        <div id="dialog" title = "Details" data-bind="text: name">
+				</div>
 		    </li>
 		</ul>
 	</form>
+
 	<h3>Map of New York</h3>
 	<div id = "map" class = "map-div">
 	</div>
