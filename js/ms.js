@@ -35,9 +35,9 @@ $(function() {
 			});
 			bounds = new google.maps.LatLngBounds();
 
-			console.log("No of places selected:" + ViewModel.getPlaces().length);
-			MapView.setAllMarkers();
-			console.log("initMap is called");
+			//console.log("No of places selected:" + ViewModel.getPlaces().length);
+			//MapView.setAllMarkers();
+			//console.log("initMap is called");
 		},
 
 		setAllMarkers: function() {
@@ -51,14 +51,14 @@ $(function() {
 		pinPoster : function(name, category, location) {
 			if (map) {
 				var service = new google.maps.places.PlacesService(map);
-				var type_string = [];
-				type_string.push(category);
+				//var type_string = [];
+				//type_string.push(category);
 
 				var request = {
 					location: map.getCenter(),
 					radius: '5000',
 					query: name,
-					types: type_string
+					types: category
 				};
 				console.log("in pinPoster:"+name+":"+ location + category);
 				service.textSearch(request, MapView.callback);
@@ -157,7 +157,7 @@ $(function() {
 		self.locations = ko.observableArray([]);
 		self.type = ko.observable("restaurant");
 		self.filter = "restaurants";
-		self.google_types = 'restaurant';
+		self.google_types = ['restaurant'];
 		self.infoTypes = ['Restaurant', 'Cafe', 'Ice Cream', 'Shopping'];
 		loadPlaces();
 
@@ -217,7 +217,8 @@ $(function() {
 		                console.log(bizname);
 		               	self.locations.push(new Place(bizname,self.type(), true, bizAddress, bizurl, bizRating,
 		               		rating_img_url, bizSnippet));
-		               	console.log("After AJAX call:"+self.locations().length);
+		               	console.log("After AJAX call:"+self.locations().length + "Google Type: " + self.google_types);
+		               	MapView.pinPoster(bizname, self.google_types, bizAddress);
 		            }
 
 
@@ -229,29 +230,32 @@ $(function() {
 		};
 
 		self.getInfoType = function() {
+			self.google_types=[];
 
 			self.type(this);
 			console.log("In getInfoType: "+self.type());
 			switch(this) {
 				case 'Restaurant':
 					self.filter = 'Restaurants';
-					self.google_types = 'restaurant';
+					self.google_types.push('restaurant');
 					break;
 				case 'Cafe':
 					self.filter = '';
-					self.google_types = ['cafe'];
+					self.google_types.push('cafe');
 				case 'Shopping':
 					self.filter = 'Shopping';
 					self.google_types = [];
 				case 'Ice Cream':
 					self.filter = '';
-					self.google_types = ['food'];
+					self.google_types.push('food');
 			}
+			console.log("In GetInfoType: " +self.google_types);
 			self.locations.removeAll();
-			loadPlaces();
-			console.log("In getInfoType: " + self.locations.length);
 			MapView.deleteMarkers();
-			MapView.setAllMarkers();
+			loadPlaces();
+			//console.log("In getInfoType: " + self.locations.length);
+
+			//MapView.setAllMarkers();
 		}
 
 
@@ -279,7 +283,7 @@ $(function() {
 						loc.selected(false);
 					} else {
 						loc.selected(true);
-						MapView.pinPoster(loc.name(), loc.category(), loc.address());
+						MapView.pinPoster(loc.name(), self.google_types, loc.address());
 					}
 				});
 				//Use visible binding!!!
@@ -312,6 +316,8 @@ $(function() {
 
 		self.showDetail = function() {
 			console.log("!!!!!In showWindow: "+this.name());
+			self.search_term(this.name());
+			self.searchPlace();
 			$('#dialog').empty();
 			$('#dialog').append("<p>"+this.name()+" Yelp Rating:"+this.rating()+"</p>");
 			$('#dialog').append("<p>"+this.snippet()+"</p>");
@@ -324,7 +330,7 @@ $(function() {
 				if (loc.selected()) {
 					retArr.push({
 						"name": loc.name(),
-						"category": self.type(),
+						"category": self.google_types,
 						"address": loc.address()
 					});
 				}
@@ -365,12 +371,13 @@ $(function() {
 	};
 */
 
-
+	//window.addEventListener('load', MapView.initMap);
+	MapView.initMap();
 	var viewModel = new ViewModel();
 	ko.applyBindings(viewModel);
 	//viewModel.reload();
 	//AppView.init();
-	window.addEventListener('load', MapView.initMap);
+
 	//ViewModel.setPins();
 });
 
