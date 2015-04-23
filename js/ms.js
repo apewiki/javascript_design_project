@@ -42,13 +42,13 @@ $(function() {
 			//console.log("initMap is called");
 		},
 
-		setAllMarkers: function() {
+		/*setAllMarkers: function() {
 			var places = ViewModel.getPlaces();
 			places.forEach(function(loc) {
 				console.log("in setAll Markers:" + loc);
 				MapView.pinPoster(loc.name, loc.category, loc.address);
 			});
-		},
+		},*/
 
 		findMarker: function(name) {
 			for (var i =0; i<markers.length; i++) {
@@ -182,7 +182,7 @@ $(function() {
 		self.filter = "restaurants";
 		self.google_types = ['restaurant'];
 		self.infoTypes = ['Restaurant', 'Cafe', 'Ice Cream', 'Shopping'];
-		loadPlaces();
+		loadAll();
 
 		self.search_term = ko.observable("");
 
@@ -191,7 +191,15 @@ $(function() {
 			console.log(loc.name() + ':' +loc.category() + ":"+loc.selected());
 		});
 
-		function loadPlaces() {
+		function loadAll()
+		{
+			loadPlaces('restaurant', 'restaurants',['restaurant']);
+			loadPlaces('cafe, coffee shop', '', []);
+			loadPlaces('ice cream parlor, candy shop','',['food']);
+			loadPlaces('shopping, shopping mall','shopping','');
+		}
+
+		function loadPlaces(type,yelp_filter, google_types) {
 			var yelp_url = "http://api.yelp.com/v2/search";
 		   // var yelpRequestTimeout = setTimeout(function(){
 		   //     errMsg = "failed to get yelp resources";
@@ -209,20 +217,21 @@ $(function() {
 		        location: MYLOCATION,
 		        lcc: 'NYLAT, NYLLG',
 		        //radius_filter: '10000',
-		        term: 'popular '+ self.type(),
+		        term: 'popular '+ type,
 		        //category_filter: 'restaurants',
 		        limit: 10,
 		        sort: 2
 		    };
 		    if (self.filter.length) {
-		    	parameters.category_filter = self.filter;
+		    	parameters.category_filter = yelp_filter;
 		    }
 
 		    var encodedSignature = oauthSignature.generate('GET', yelp_url, parameters,
 		        YELP_KEY_SECRET, YELP_TOKEN_SECRET);
 		    parameters.oauth_signature = encodedSignature;
 		    console.log("obtaining encodedSignature:"+encodedSignature);
-
+		    var selected = (type === self.type());
+		    console.log("In load: selected or not? "+selected);
 
 		    $.ajax({
 		        url: yelp_url,
@@ -239,10 +248,12 @@ $(function() {
 		                var bizSnippet = response.businesses[i].snippet_text;
 		                var bizAddress = response.businesses[i].location.display_address;
 		                console.log(bizname);
-		               	self.locations.push(new Place(bizname,self.type(), true, bizAddress, bizurl, bizRating,
+		               	self.locations.push(new Place(bizname, type, selected, bizAddress, bizurl, bizRating,
 		               		rating_img_url, bizSnippet));
-		               	console.log("After AJAX call:"+self.locations().length + "Google Type: " + self.google_types);
-		               	MapView.pinPoster(bizname, self.google_types, bizAddress);
+		               	console.log("After AJAX call:"+self.locations().length + "Google Type: " + google_types);
+		               	if (selected) {
+		               		MapView.pinPoster(bizname, google_types, bizAddress);
+		               	}
 		            }
 
 
@@ -259,9 +270,9 @@ $(function() {
 		self.getInfoType = function() {
 			self.google_types=[];
 
-			self.type(this);
 			console.log("In getInfoType: "+self.type());
 			if (this.match(/Restaurant/)) {
+					self.type('restaurant');
 					self.filter = 'restaurants';
 					self.google_types.push('restaurant');
 				} else if (this.match(/Cafe/)) {
@@ -280,9 +291,9 @@ $(function() {
 				}
 
 			console.log("In GetInfoType: google Type:" +self.google_types+" yelp filter:" + self.filter);
-			self.locations.removeAll();
 			MapView.clearMarkers();
-			loadPlaces();
+			self.reset();
+			//loadPlaces();
 			//console.log("In getInfoType: " + self.locations.length);
 
 			//MapView.setAllMarkers();
@@ -291,15 +302,20 @@ $(function() {
 
 		self.reset = function() {
 				self.locations().forEach(function(loc) {
-					loc.selected(true);
+					loc.selected(loc.category() === self.type());
+					console.log("Type is: "+loc.category() + "Self type: "+self.type());
+					if (loc.selected()) {
+						MapView.pinPoster(loc.name(), self.google_types, loc.address());
+					}
 				});
-				MapView.setAllMarkers();
+
 		};
 
+		/*
 		self.reload = function() {
 			self.locations = ko.observableArray([]);
 			loadPlaces();
-		};
+		};*/
 
 		self.searchPlace = function () {
 			console.log("In Search:"+self.search_term());
@@ -314,6 +330,7 @@ $(function() {
 					} else {
 						loc.selected(true);
 						MapView.pinPoster(loc.name(), self.google_types, loc.address());
+						//manageDialog(loc, false);
 					}
 				});
 				//Use visible binding!!!
@@ -339,8 +356,22 @@ $(function() {
 	      hide: {
 	        effect: "explode",
 	        duration: 1000
+	      },
+	      position: {
+	      	my: "center top",
+	      	at: "right center+50%",
+	      	of: "#selected-list"
 	      }
 	    });
+
+	    /*function manageDialog(location, toOPen) {
+	    	if ($('#dialog').dialog('isOpen') || toOpen) {
+	    		$('#dialog').empty();
+				$('#dialog').append("<p>"+location.name()+" Yelp Rating:"+location.rating()+"</p>");
+				$('#dialog').append("<p>"+location.snippet()+"</p>");
+				$("#dialog").dialog("open");
+	    	}
+	    }*/
 
 
 
@@ -348,12 +379,16 @@ $(function() {
 			console.log("!!!!!In showWindow: "+this.name());
 			self.search_term(this.name());
 			self.searchPlace();
+
 			$('#dialog').empty();
 			$('#dialog').append("<p>"+this.name()+" Yelp Rating:"+this.rating()+"</p>");
 			$('#dialog').append("<p>"+this.snippet()+"</p>");
+
 			$("#dialog").dialog("open");
+			$('#dialog').dialog("moveToTop");
 		};
 
+		/*
 		ViewModel.getPlaces = function() {
 			var retArr = [];
 			self.locations().forEach(function(loc) {
@@ -365,8 +400,9 @@ $(function() {
 					});
 				}
 			});
+			console.log(retArr);
 			return retArr;
-		};
+		};*/
 	};
 
 

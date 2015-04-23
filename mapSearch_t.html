@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 </head>
 <body>
-	<ul class="head" data-bind="foreach: infoTypes">
+	<ul class="head" data-bind="foreach: infoTypes" id="selected-list">
 		<li><b data-bind="text: $data, click: $root.getInfoType"></b></li>
 	<!--
 		<li id="topFood"> Top Food </li>
