@@ -10,6 +10,8 @@ $(function() {
     const YELP_TOKEN = '-rBzvZN5TaldkdYTsM_vv4SDm8lvOVZM';
     const YELP_TOKEN_SECRET = 'x9rkfFF6cKAnNJgz5oR5GsH_pew';
     const MYLOCATION = 'New York, NY';
+    const NYLAT=40.733;
+    const NYLNG=-73.9797;
 
 
 	var Place = function(name, category,selected, address,url, rating, rating_img_url, snippet) {
@@ -29,7 +31,7 @@ $(function() {
 		initMap : function() {
 
 			map = new google.maps.Map(document.getElementById('map'), {
-				center: {lat: 40.7033, lng:-73.9797},
+				center: {lat: NYLAT, lng:NYLNG},
 				zoom: 12,
 				disableDefaultUI: true
 			});
@@ -48,20 +50,40 @@ $(function() {
 			});
 		},
 
+		findMarker: function(name) {
+			markers.forEach(function(marker) {
+				var marker_name = marker.title.split(',')[0];
+				var re = new RegExp(name, 'i');
+				console.log("In findMarker: marker_name: "+marker_name+" search_term: "+name+ "Regular Exp: "+re);
+				if (marker_name.search(re) != -1) {
+					return marker;
+				}
+			});
+			return null;
+		},
+
 		pinPoster : function(name, category, location) {
 			if (map) {
-				var service = new google.maps.places.PlacesService(map);
-				//var type_string = [];
-				//type_string.push(category);
+				var marker = MapView.findMarker(name);
+				if (marker) {
+					console.log("in pinPost: found marker! " + name);
+					marker.setMap(map);
+				} else {
+					console.log("in pinPoster: DID NOT Find Marker "+name);
+					var service = new google.maps.places.PlacesService(map);
+					//var type_string = [];
+					//type_string.push(category);
 
-				var request = {
-					location: map.getCenter(),
-					radius: '5000',
-					query: name,
-					types: category
-				};
-				console.log("in pinPoster:"+name+":"+ location + category);
-				service.textSearch(request, MapView.callback);
+					var request = {
+						location: map.getCenter(),
+						radius: '5000',
+						query: name + ' in New York',
+						types: category
+					};
+					console.log("in pinPoster:"+name+":"+ location + category);
+					service.textSearch(request, MapView.callback);
+				}
+				
 			} else {
 				console.log("no map to post pins!");
 			}
@@ -87,7 +109,7 @@ $(function() {
 				map: map,
 				icon: image,
 				animation: google.maps.Animation.DROP,
-				title: placeData.formatted_address
+				title: placeData.name + ", " + placeData.formatted_address
 			});
 
 			markers.push(marker);
@@ -184,6 +206,7 @@ $(function() {
 		        oauth_version: '1.0',
 		        callback: 'cb',
 		        location: MYLOCATION,
+		        lcc: 'NYLAT, NYLLG',
 		        //radius_filter: '10000',
 		        term: 'popular '+ self.type(),
 		        //category_filter: 'restaurants',
@@ -223,6 +246,9 @@ $(function() {
 
 
 		            //clearTimeout(yelpRequestTimeout);
+		        },
+		        error: function (response ) {
+		        	console.log("Failed to search Yelp.");
 		        }
 
 		    });
@@ -234,24 +260,27 @@ $(function() {
 
 			self.type(this);
 			console.log("In getInfoType: "+self.type());
-			switch(this) {
-				case 'Restaurant':
-					self.filter = 'Restaurants';
+			if (this.match(/Restaurant/)) {
+					self.filter = 'restaurants';
 					self.google_types.push('restaurant');
-					break;
-				case 'Cafe':
+				} else if (this.match(/Cafe/)) {
 					self.filter = '';
-					self.google_types.push('cafe');
-				case 'Shopping':
-					self.filter = 'Shopping';
-					self.google_types = [];
-				case 'Ice Cream':
+					self.type('cafe, coffee shop');
+					//self.google_types.push('cafe');
+				} else if (this.match(/Shopping/))
+				{
+					self.filter = 'shopping';
+					self.type('shopping, shopping mall')
+				} else if (this.match(/Ice Cream/))
+				{
 					self.filter = '';
+					self.type('ice cream parlor, candy shop');
 					self.google_types.push('food');
-			}
-			console.log("In GetInfoType: " +self.google_types);
+				}
+
+			console.log("In GetInfoType: google Type:" +self.google_types+" yelp filter:" + self.filter);
 			self.locations.removeAll();
-			MapView.deleteMarkers();
+			MapView.clearMarkers();
 			loadPlaces();
 			//console.log("In getInfoType: " + self.locations.length);
 
