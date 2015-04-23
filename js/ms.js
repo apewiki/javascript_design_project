@@ -51,14 +51,15 @@ $(function() {
 		},
 
 		findMarker: function(name) {
-			markers.forEach(function(marker) {
-				var marker_name = marker.title.split(',')[0];
+			for (var i =0; i<markers.length; i++) {
+				var marker_name = markers[i].title.split(',')[0];
 				var re = new RegExp(name, 'i');
-				console.log("In findMarker: marker_name: "+marker_name+" search_term: "+name+ "Regular Exp: "+re);
-				if (marker_name.search(re) != -1) {
-					return marker;
+				var search_r = marker_name.search(re);
+				//console.log("In findMarker: marker_name: "+marker_name+" search_term: "+name+ "Regular Exp: "+re +"search result: " + search_r);
+				if (search_r != -1) {
+					return markers[i];
 				}
-			});
+			};
 			return null;
 		},
 
@@ -83,7 +84,7 @@ $(function() {
 					console.log("in pinPoster:"+name+":"+ location + category);
 					service.textSearch(request, MapView.callback);
 				}
-				
+
 			} else {
 				console.log("no map to post pins!");
 			}
@@ -306,7 +307,7 @@ $(function() {
 			var re = new RegExp(self.search_term(), "i");
 
 			if (self.search_term().length>0) {
-				MapView.deleteMarkers();
+				MapView.clearMarkers();
 				self.locations().forEach(function(loc) {
 					if (loc.name().search(re) === -1) {
 						loc.selected(false);
