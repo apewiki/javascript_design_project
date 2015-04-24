@@ -1,13 +1,46 @@
+html, body {
+	margin: 0;
+	padding: 0;
+}
+
+.container {
+	width: 100%;
+	margin-left: auto;
+	margin-right: auto;
+}
 .map-div {
-	height: 500px;
+	min-height: 400px;
+	width: 100%;
 }
 
 .head {
 	display: flex;
+	list-style: none;
+	width: 100%;
+	margin-left: 0;
+	margin-right: 0;
+	/*margin-left: auto;
+	margin-right: auto;*/
 }
 
 .head li {
-	width: 33%;
+	width: 22%;
+	box-sizing: border-box;
+	border-radius: 10px;
+	border-style: groove;
+	border-color: grey;
+	background-color: #99FFCC;
+	text-align: center;
+	line-height: 20px;
+	padding: 10px;
+}
+
+.typeSelected {
+	background-color: #00CCFF;
+}
+
+.typeDeselected {
+	background-color: #99FFCC;
 }
 
 .btn-noshow {
@@ -15,7 +48,6 @@
 }
 
 .dialogBox {
-	position: absolute;
-	right: 50px;
-	top: 50px;
+	font: 30px;
+	font-style: italic;
 }

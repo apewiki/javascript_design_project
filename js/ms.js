@@ -247,10 +247,10 @@ $(function() {
 		                var rating_img_url = response.businesses[i].rating_img_url_small;
 		                var bizSnippet = response.businesses[i].snippet_text;
 		                var bizAddress = response.businesses[i].location.display_address;
-		                console.log(bizname);
+		               // console.log(bizname);
 		               	self.locations.push(new Place(bizname, type, selected, bizAddress, bizurl, bizRating,
 		               		rating_img_url, bizSnippet));
-		               	console.log("After AJAX call:"+self.locations().length + "Google Type: " + google_types);
+		               	//console.log("After AJAX call:"+self.locations().length + "Google Type: " + google_types);
 		               	if (selected) {
 		               		MapView.pinPoster(bizname, google_types, bizAddress);
 		               	}
@@ -266,6 +266,14 @@ $(function() {
 		    });
 
 		};
+
+		self.checkType = ko.pureComputed( function() {
+			console.log("checkType is######## called!" + self.type() + "matching:" + this);
+			console.log("Result:" + self.type().match(new RegExp(this, 'i')));
+			return self.type().match(new RegExp(this, 'i'))? "typeSelected": "typeDeselected";
+
+		}, self);
+		
 
 		self.getInfoType = function() {
 			self.google_types=[];
@@ -297,7 +305,7 @@ $(function() {
 			//console.log("In getInfoType: " + self.locations.length);
 
 			//MapView.setAllMarkers();
-		}
+		};
 
 
 		self.reset = function() {
@@ -305,6 +313,7 @@ $(function() {
 					loc.selected(loc.category() === self.type());
 					console.log("Type is: "+loc.category() + "Self type: "+self.type());
 					if (loc.selected()) {
+						console.log("!!!Set Pin: " + loc.name() + ":"+loc.category());
 						MapView.pinPoster(loc.name(), self.google_types, loc.address());
 					}
 				});

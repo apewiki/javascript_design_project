@@ -9,36 +9,43 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
     <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
     <script src="node_modules/oauth-signature/dist/oauth-signature.js"></script>
+   
     <script src="js/ms.js"></script>
+    
     <link rel="stylesheet" type="text/css" href="css/main.css">
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+
 </head>
 <body>
-	<ul class="head" data-bind="foreach: infoTypes" id="selected-list">
-		<li><b data-bind="text: $data, click: $root.getInfoType"></b></li>
-	<!--
-		<li id="topFood"> Top Food </li>
-		<li id="hotels"> Hotels </li>
-		<li id="destinations"> Places of Interest </li>
-		<li if="transits"> Transits</li>
-	-->
-	</ul>
-	<form data-bind="submit:redirect">
-		<input id="search_term" data-bind="textInput: search_term, event:{keyup: searchPlace}">
-		<button type="submit" class="btn-noshow"></button>
-		<h4>Loations</h4>
-		<ul data-bind="foreach: locations">
-		    <li data-bind="visible: selected">
-		        Name at position <span data-bind="text: $index"> </span>:
-		        <span data-bind="text: name, click: $parent.showDetail"> </span>
-		        <div id="dialog" title = "Details" data-bind="text: name">
-				</div>
-		    </li>
+	<div class="container">
+		<ul class="head" data-bind="foreach: infoTypes" id="selected-list">
+			<li><b data-bind="text: $data, click: $root.getInfoType, css: $root.checkType"></b></li>
+		<!--
+			<li id="topFood"> Top Food </li>
+			<li id="hotels"> Hotels </li>
+			<li id="destinations"> Places of Interest </li>
+			<li if="transits"> Transits</li>
+		-->
 		</ul>
-	</form>
+		<form data-bind="submit:redirect">
+			<label>Search</label>
+			<input id="search_term" data-bind="textInput: search_term, event:{keyup: searchPlace}">
+			<button type="submit" class="btn-noshow"></button>
+			<h4>Loations</h4>
+			<ul data-bind="foreach: locations">
+			    <li data-bind="visible: selected">
+			        <!--<span data-bind="text: $index"> </span>-->
+			        <span data-bind="text: name, click: $parent.showDetail"> </span>
+			        <img data-bind="attr: {src: rating_img}">
+			        <div id="dialog" class="dialogBox" title = "Details" data-bind="text: name">
+					</div>
+			    </li>
+			</ul>
+		</form>
 
-	<h3>Map of New York</h3>
-	<div id = "map" class = "map-div">
-	</div>
+		<h3>Map of New York</h3>
+		<div id = "map" class = "map-div">
+		</div>
+</div>
 </body>
 </html>
