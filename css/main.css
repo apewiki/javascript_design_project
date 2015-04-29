@@ -35,6 +35,16 @@ html, body {
 	padding: 10px;
 }
 
+.head li a {
+	font-weight: 700;
+	color: black;
+	text-decoration: none;
+
+}
+.head li a:hover, a:active {
+	color: red;
+}
+
 .typeSelected {
 	background-color: #00CCFF;
 }

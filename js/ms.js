@@ -181,7 +181,11 @@ $(function() {
 		self.type = ko.observable("restaurant");
 		self.filter = "restaurants";
 		self.google_types = ['restaurant'];
-		self.infoTypes = ['Restaurant', 'Cafe', 'Ice Cream', 'Shopping'];
+		self.infoTypes = ko.observableArray([]);
+		self.infoTypes.push(ko.observable('Restaurant'));
+		self.infoTypes.push(ko.observable('Cafe'));
+		self.infoTypes.push(ko.observable('Ice Cream'));
+		self.infoTypes.push(ko.observable('Shopping'));
 		loadAll();
 
 		self.search_term = ko.observable("");
@@ -267,16 +271,20 @@ $(function() {
 
 		};
 
-		self.checkType = ko.pureComputed( function() {
+		//This does not work
+		/*self.checkType = ko.pureComputed( function() {
 			console.log("checkType is######## called!" + self.type() + "matching:" + this);
 			console.log("Result:" + self.type().match(new RegExp(this, 'i')));
-			return self.type().match(new RegExp(this, 'i'))? "typeSelected": "typeDeselected";
+			var ret = self.type().match(new RegExp(this, 'i'))? "typeSelected": "typeDeselected";
+			console.log("Result:" + ret);
+			return ret;
 
-		}, self);
+		}, self);*/
 		
 
 		self.getInfoType = function() {
 			self.google_types=[];
+
 
 			console.log("In getInfoType: "+self.type());
 			if (this.match(/Restaurant/)) {
