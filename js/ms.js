@@ -69,6 +69,7 @@ $(function() {
 				if (marker) {
 					console.log("in pinPost: found marker! " + name);
 					marker.setMap(map);
+					MapView.setBounds(marker);
 				} else {
 					console.log("in pinPoster: DID NOT Find Marker "+name);
 					var service = new google.maps.places.PlacesService(map);
@@ -115,9 +116,10 @@ $(function() {
 
 			markers.push(marker);
 
-			bounds.extend(new google.maps.LatLng(lat,lng));
+			/*bounds.extend(new google.maps.LatLng(lat,lng));
 			map.fitBounds(bounds);
-			map.setCenter(bounds.getCenter());
+			map.setCenter(bounds.getCenter());*/
+			MapView.setBounds(marker);
 
 
 			var infowindow = new google.maps.InfoWindow();
@@ -166,6 +168,13 @@ $(function() {
 			markers.forEach(function(marker) {
 				marker.setMap(null);
 			})
+			bounds = new google.maps.LatLngBounds();
+		},
+
+		setBounds: function(marker) {
+			bounds.extend(new google.maps.LatLng(marker.getPosition().lat(),marker.getPosition().lng()));
+			map.fitBounds(bounds);
+			map.setCenter(bounds.getCenter());
 		},
 
 		deleteMarkers: function() {
@@ -280,7 +289,7 @@ $(function() {
 			return ret;
 
 		}, self);*/
-		
+
 
 		self.getInfoType = function() {
 			self.google_types=[];
@@ -398,8 +407,12 @@ $(function() {
 			self.searchPlace();
 
 			$('#dialog').empty();
-			$('#dialog').append("<p>"+this.name()+" Yelp Rating:"+this.rating()+"</p>");
-			$('#dialog').append("<p>"+this.snippet()+"</p>");
+			$('#dialog').append("<a href="+this.url()+" target='_blank' class='detail-header'>"+this.name()+"</a>"
+				+"<span class='detail-header'> Yelp Rating:"+this.rating()+"</span>");
+			$('#dialog').append("<p class='detail-body'> <span>From Yelp Review: </span>"+this.snippet()+"</p>");
+			var yelp_url = "<a href=" + this.url() +"> Read more</a>";
+			console.log("Yelp URL: "+this.url);
+			//$('#dialog').append("<a href=" + this.url() +" target='_blank'> Go To Yelp</a>");
 
 			$("#dialog").dialog("open");
 			$('#dialog').dialog("moveToTop");

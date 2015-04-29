@@ -45,13 +45,6 @@ html, body {
 	color: red;
 }
 
-.typeSelected {
-	background-color: #00CCFF;
-}
-
-.typeDeselected {
-	background-color: #99FFCC;
-}
 
 .btn-noshow {
 	display: none;
@@ -59,5 +52,17 @@ html, body {
 
 .dialogBox {
 	font: 30px;
+}
+
+.dialogBox span {
+	color: red;
+}
+
+.detail-header {
+	color: red;
+	font-weight: bold;
+}
+
+.detail-body {
 	font-style: italic;
 }
