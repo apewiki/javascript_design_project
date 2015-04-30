@@ -3,7 +3,7 @@ $(function() {
 	var map;
 	var markers=[];
 	var bounds;
-	
+
 	const YELP_KEY = 'bv-f4fN8pfiBGodIp824VA';
     const YELP_KEY_SECRET = 'Lmq4G67yJ8avCfy6LqCaxFiEm1E';
     const YELP_TOKEN = '-rBzvZN5TaldkdYTsM_vv4SDm8lvOVZM';
@@ -161,7 +161,16 @@ $(function() {
 				for (var r in results) {
 					//console.log(results[r]);
 					MapView.createMarker(results[r]);
-				*/			}
+				*/
+			}else {
+				var map_err_div = document.getElementById("map_err");
+				if (map_err_div) {
+					$("#map_err").html("Sorry, some issue occurred in map search: " + status);
+				} else {
+					$("#map").append("<div id='map_err'>Sorry, some issue occurred in map search." +status);
+				}
+			}
+
 		},
 
 		clearMarkers: function() {
@@ -189,13 +198,14 @@ $(function() {
 		self.search_term = ko.observable("");
 		self.locations = ko.observableArray([]);
 		self.type = ko.observable("restaurant");
-		self.filter = "restaurants";
+		//self.filter = "restaurants";
 		self.google_types = ['restaurant'];
 		self.infoTypes = ko.observableArray([]);
 		self.infoTypes.push(ko.observable('Restaurant'));
 		self.infoTypes.push(ko.observable('Cafe'));
 		self.infoTypes.push(ko.observable('Ice Cream'));
 		self.infoTypes.push(ko.observable('Shopping'));
+
 		loadAll();
 
 		self.search_term = ko.observable("");
@@ -236,7 +246,8 @@ $(function() {
 		        limit: 10,
 		        sort: 2
 		    };
-		    if (self.filter.length) {
+		    //if (self.filter.length) {
+		    if (yelp_filter.length) {
 		    	parameters.category_filter = yelp_filter;
 		    }
 
@@ -298,7 +309,16 @@ $(function() {
 			return ret;
 
 		}, self);*/
-
+		self.getGoogleTypes = function(type) {
+			var retVal = [];
+			if (type.match(/Restaurant/)) {
+					retVal.push('restaurant');
+			} else if (type.match(/Ice Cream/))
+			{
+				retVal.push('food');
+			}
+			return retVal;
+		}
 
 		self.getInfoType = function() {
 			self.google_types=[];
@@ -308,24 +328,24 @@ $(function() {
 			console.log("In getInfoType: "+self.type());
 			if (this.match(/Restaurant/)) {
 					self.type('restaurant');
-					self.filter = 'restaurants';
+					//self.filter = 'restaurants';
 					self.google_types.push('restaurant');
 				} else if (this.match(/Cafe/)) {
-					self.filter = '';
+					//self.filter = '';
 					self.type('cafe, coffee shop');
 					//self.google_types.push('cafe');
 				} else if (this.match(/Shopping/))
 				{
-					self.filter = 'shopping';
+					//self.filter = 'shopping';
 					self.type('shopping, shopping mall')
 				} else if (this.match(/Ice Cream/))
 				{
-					self.filter = '';
+					//self.filter = '';
 					self.type('ice cream parlor, candy shop');
 					self.google_types.push('food');
 				}
 
-			console.log("In GetInfoType: google Type:" +self.google_types+" yelp filter:" + self.filter);
+			console.log("In GetInfoType: google Type:" +self.google_types);
 			MapView.clearMarkers();
 			self.reset();
 			//loadPlaces();
@@ -357,15 +377,17 @@ $(function() {
 			console.log("In Search:"+self.search_term());
 
 			var re = new RegExp(self.search_term(), "i");
+			MapView.clearMarkers();
 
 			if (self.search_term().length>0) {
-				MapView.clearMarkers();
+
 				self.locations().forEach(function(loc) {
 					if (loc.name().search(re) === -1) {
 						loc.selected(false);
 					} else {
+						console.log("In Search: Found place: " + loc.name());
 						loc.selected(true);
-						MapView.pinPoster(loc.name(), self.google_types, loc.address());
+						MapView.pinPoster(loc.name(), self.getGoogleTypes(loc.category()), loc.address());
 						//manageDialog(loc, false);
 					}
 				});
