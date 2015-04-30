@@ -3,8 +3,7 @@ $(function() {
 	var map;
 	var markers=[];
 	var bounds;
-	var errMsg;
-
+	
 	const YELP_KEY = 'bv-f4fN8pfiBGodIp824VA';
     const YELP_KEY_SECRET = 'Lmq4G67yJ8avCfy6LqCaxFiEm1E';
     const YELP_TOKEN = '-rBzvZN5TaldkdYTsM_vv4SDm8lvOVZM';
@@ -14,11 +13,12 @@ $(function() {
     const NYLNG=-73.9797;
 
 
-	var Place = function(name, category,selected, address,url, rating, rating_img_url, snippet) {
+	var Place = function(name, category,selected, address, neighborhoods, url, rating, rating_img_url, snippet) {
 		this.name = ko.observable(name);
 		this.category = ko.observable(category);
 		this.selected= ko.observable(selected);
 		this.address = ko.observable(address);
+		this.neighborhoods = ko.observable(neighborhoods);
 		this.url = ko.observable(url);
 		this.rating = ko.observable(rating);
 		this.rating_img = ko.observable(rating_img_url);
@@ -185,6 +185,7 @@ $(function() {
 
 	var ViewModel = function() {
 		var self = this;
+		self.errMsg = ko.observable("");
 		self.search_term = ko.observable("");
 		self.locations = ko.observableArray([]);
 		self.type = ko.observable("restaurant");
@@ -246,6 +247,11 @@ $(function() {
 		    var selected = (type === self.type());
 		    console.log("In load: selected or not? "+selected);
 
+		    var yelpRequestTimeout = setTimeout(function() {
+		    	self.errMsg("Sorry, request to yelp timed out. Please check your internet connection.");
+		    	//$('#result-form').prepend("<div id='err'>"+errMsg+"</div>");
+		    }, 8000);
+
 		    $.ajax({
 		        url: yelp_url,
 		        data: parameters,
@@ -260,8 +266,9 @@ $(function() {
 		                var rating_img_url = response.businesses[i].rating_img_url_small;
 		                var bizSnippet = response.businesses[i].snippet_text;
 		                var bizAddress = response.businesses[i].location.display_address;
+		                var bizNeighborhoods = response.businesses[i].location.neighborhoods;
 		               // console.log(bizname);
-		               	self.locations.push(new Place(bizname, type, selected, bizAddress, bizurl, bizRating,
+		               	self.locations.push(new Place(bizname, type, selected, bizAddress, bizNeighborhoods, bizurl, bizRating,
 		               		rating_img_url, bizSnippet));
 		               	//console.log("After AJAX call:"+self.locations().length + "Google Type: " + google_types);
 		               	if (selected) {
@@ -270,9 +277,11 @@ $(function() {
 		            }
 
 
-		            //clearTimeout(yelpRequestTimeout);
+		            clearTimeout(yelpRequestTimeout);
 		        },
 		        error: function (response ) {
+		        	self.errMsg ("Sorry, Yelp search failed.");
+		        	//$('#result-form').prepend("<div id='err'>"+errMsg+"</div>");
 		        	console.log("Failed to search Yelp.");
 		        }
 
@@ -293,6 +302,7 @@ $(function() {
 
 		self.getInfoType = function() {
 			self.google_types=[];
+			self.search_term("");
 
 
 			console.log("In getInfoType: "+self.type());
