@@ -450,6 +450,15 @@ $(function() {
 			$('#dialog').dialog("moveToTop");
 		};
 
+		self.toggleList = function() {
+			console.log("In toggleList!!");
+			$('#loc_list').toggleClass("loc-list");
+			$('#plus').toggleClass("hidden");
+			$('#minus').toggleClass("hidden");
+		};
+
+
+
 		/*
 		ViewModel.getPlaces = function() {
 			var retArr = [];

@@ -66,3 +66,18 @@ html, body {
 .detail-body {
 	font-style: italic;
 }
+
+.plusminus {
+	font-weight: bold;
+	min-width: 48px;
+	text-decoration: none;
+	padding-left: 5px
+}
+
+.hidden {
+	display: none;
+}
+
+.loc-list {
+	display: none;
+}
