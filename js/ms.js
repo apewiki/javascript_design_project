@@ -204,7 +204,7 @@ $(function() {
 		self.infoTypes.push(ko.observable('Restaurant'));
 		self.infoTypes.push(ko.observable('Cafe'));
 		self.infoTypes.push(ko.observable('Ice Cream'));
-		self.infoTypes.push(ko.observable('Shopping'));
+		self.infoTypes.push(ko.observable('Shop'));
 
 		loadAll();
 
@@ -334,7 +334,7 @@ $(function() {
 					//self.filter = '';
 					self.type('cafe, coffee shop');
 					//self.google_types.push('cafe');
-				} else if (this.match(/Shopping/))
+				} else if (this.match(/Shop/))
 				{
 					//self.filter = 'shopping';
 					self.type('shopping, shopping mall')
