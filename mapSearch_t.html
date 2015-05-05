@@ -18,15 +18,18 @@
 </head>
 <body>
 	<div class="container">
-		<ul class="head" data-bind="foreach: infoTypes" id="selected-list">
-			<li><a href="#" data-bind="text: $data, click: $root.getInfoType"></a></li>
-		<!--
-			<li id="topFood"> Top Food </li>
-			<li id="hotels"> Hotels </li>
-			<li id="destinations"> Places of Interest </li>
-			<li if="transits"> Transits</li>
-		-->
-		</ul>
+		<div class="nav-div">
+			<a href="#" class="nav-menu">Fun Things To Do</a>
+			<ul class="head" data-bind="foreach: infoTypes" id="selected-list">
+				<li><a href="#" data-bind="text: $data, click: $root.getInfoType"></a></li>
+			<!--
+				<li id="topFood"> Top Food </li>
+				<li id="hotels"> Hotels </li>
+				<li id="destinations"> Places of Interest </li>
+				<li if="transits"> Transits</li>
+			-->
+			</ul>
+		</div>
 		<div id="err" data-bind="text: errMsg"></div>
 		<form id="result_form" data-bind="submit:redirect">
 			<a href="#" id="plus" class="plusminus" data-bind="click: toggleList">+ Locations</a>

@@ -24,7 +24,7 @@ html, body {
 	margin-right: auto;
 }
 
-.head li {
+#selected-list li {
 	width: 22%;
 	box-sizing: border-box;
 	border-radius: 10px;
@@ -36,25 +36,84 @@ html, body {
 	padding: 10px 2px 10px 2px;
 }
 
-.head li a {
+#selected-list li a {
 	font-weight: 700;
 	color: black;
 	text-decoration: none;
 
 }
-.head li a:hover, a:active {
+#selected-list li a:hover, a:active {
 	color: red;
 }
 
+.nav-menu {
+	display: none;
+}
+
 @media screen and (max-width: 400px)  {
+	.nav-menu {
+		position: relative;
+		display: block;
+		width: 60%;
+		margin-left: auto;
+		margin-right: auto;
+		text-decoration: none;
+		text-align: center;
+		line-height: 20px;
+		padding: 10px 2px 10px 2px;
+		background-color: grey;
+		border: solid 1px #1e2a36;
+	}
+
+	.nav-menu:after {
+		content: "\25BC";
+		font-size: 0.5em;
+		display: block;
+		top: 30%;
+		right:12%;
+		text-align: right;
+		position:absolute;
+	}
+
+	/*.nav-menu:hover ul {
+		display: block;
+	}*/
+
 	.head {
+		display:none;
+		position: relative;
+		margin-top: 0;
+		padding-left: 0;
+	}
+
+	.nav-menu:hover + .head {
 		display: block;
 	}
-	.head li {
-		width: 50%;
-		margin-left: 20px;
-		margin-right: 20px;
+
+/*
+	#selected-list {
+		display: none;
+		position: relative;
+		margin-top: 0;
+		padding-left: 0;
+		//float:left;
 	}
+
+*/
+	#selected-list li{
+		position: relative;
+		border-bottom: 1px solid rgba(255,255,255,.2);
+		width: 60%;
+		text-align: center;
+		margin-left: auto;
+		margin-right: auto;
+		border-radius: 0;
+		background-color: grey;
+		list-style: none;
+
+	}
+
+
 }
 
 .btn-noshow {

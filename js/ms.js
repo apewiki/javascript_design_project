@@ -457,7 +457,10 @@ $(function() {
 			$('#minus').toggleClass("hidden");
 		};
 
-
+		self.showChoices = function() {
+			console.log("In showChoices!");
+			$('#selected-list').toggleClass("head");
+		};
 
 		/*
 		ViewModel.getPlaces = function() {
