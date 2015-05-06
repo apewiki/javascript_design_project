@@ -18,6 +18,8 @@
 </head>
 <body>
 	<div class="container">
+
+		<h3>New York for Foodies</h3>
 		<div class="nav-div">
 			<a href="#" class="nav-menu">Fun Things To Do</a>
 			<ul class="head" data-bind="foreach: infoTypes" id="selected-list">
@@ -30,12 +32,14 @@
 			-->
 			</ul>
 		</div>
+		<br>
 		<div id="err" data-bind="text: errMsg"></div>
+		
 		<form id="result_form" data-bind="submit:redirect">
-			<a href="#" id="plus" class="plusminus" data-bind="click: toggleList">+ Locations</a>
-			<a href="#" id="minus" class="plusminus hidden" data-bind="click: toggleList">- Locations</a>
-			<label>Search</label>
-			<input id="search_term" data-bind="textInput: search_term, event:{keyup: searchPlace}">
+			<a href="#" id="plus" class="plusminus" data-bind="click: toggleList">+ <span data-bind="text: type"></span></a>
+			<a href="#" id="minus" class="plusminus hidden" data-bind="click: toggleList">- <span data-bind="text: type"></a>
+			
+			<input class="search-box" id="search_term" data-bind="textInput: search_term, event:{keyup: searchPlace}">
 			<button type="submit" class="btn-noshow"></button>
 
 			<ul id="loc_list" class ="loc-list" data-bind="foreach: locations">
@@ -49,8 +53,7 @@
 			    </li>
 			</ul>
 		</form>
-
-		<h3>Map of New York</h3>
+		<br>
 		<div id = "map" class = "map-div">
 		</div>
 </div>

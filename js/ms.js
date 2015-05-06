@@ -167,7 +167,7 @@ $(function() {
 				if (map_err_div) {
 					$("#map_err").html("Sorry, some issue occurred in map search: " + status);
 				} else {
-					$("#map").append("<div id='map_err'>Sorry, some issue occurred in map search." +status);
+					$("#map").prepend("<div id='map_err class='show-err'>Sorry, some issue occurred in map search." +status);
 				}
 			}
 
