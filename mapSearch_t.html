@@ -18,44 +18,40 @@
 </head>
 <body>
 	<div class="container">
+		<a href="#" class="nav-menu" data-bind="click: showList">&#9776; New York for Foodies</a>
+		<main data-bind="click: closeList">
+			<div class="nav-div">
+				<ul class="head" data-bind="foreach: infoTypes" id="selected-list">
+					<li><a href="#" data-bind="text: $data, click: $root.getInfoType"></a></li>
+				</ul>
+			</div>
+			<br>
+			<div id="err" data-bind="text: errMsg"></div>
 
-		<h3>New York for Foodies</h3>
-		<div class="nav-div">
-			<a href="#" class="nav-menu">Fun Things To Do</a>
-			<ul class="head" data-bind="foreach: infoTypes" id="selected-list">
-				<li><a href="#" data-bind="text: $data, click: $root.getInfoType"></a></li>
-			<!--
-				<li id="topFood"> Top Food </li>
-				<li id="hotels"> Hotels </li>
-				<li id="destinations"> Places of Interest </li>
-				<li if="transits"> Transits</li>
-			-->
-			</ul>
-		</div>
-		<br>
-		<div id="err" data-bind="text: errMsg"></div>
-		
-		<form id="result_form" data-bind="submit:redirect">
-			<a href="#" id="plus" class="plusminus" data-bind="click: toggleList">+ <span data-bind="text: type"></span></a>
-			<a href="#" id="minus" class="plusminus hidden" data-bind="click: toggleList">- <span data-bind="text: type"></a>
-			
-			<input class="search-box" id="search_term" data-bind="textInput: search_term, event:{keyup: searchPlace}">
-			<button type="submit" class="btn-noshow"></button>
+			<form id="result_form" data-bind="submit:redirect">
+				<a href="#" id="plus" class="plusminus" data-bind="click: toggleList">+ <span data-bind="text: type"></span></a>
+				<a href="#" id="minus" class="plusminus hidden" data-bind="click: toggleList">- <span data-bind="text: type"></a>
 
-			<ul id="loc_list" class ="loc-list" data-bind="foreach: locations">
-			    <li data-bind="visible: selected">
-			        <!--<span data-bind="text: $index"> </span>-->
-			        <span data-bind="text: name, click: $parent.showDetail"> </span>
-			        <img data-bind="attr: {src: rating_img}">
-			        <span data-bind="text: neighborhoods"></span>
-			        <div id="dialog" class="dialogBox" title = "Details" data-bind="text: name">
-					</div>
-			    </li>
-			</ul>
-		</form>
-		<br>
-		<div id = "map" class = "map-div">
-		</div>
-</div>
+				<input class="search-box" id="search_term" data-bind="textInput: search_term, event:{keyup: searchPlace}">
+				<button type="submit" class="btn-noshow"></button>
+
+				<ul id="loc_list" class ="loc-list" data-bind="foreach: locations">
+				    <li data-bind="visible: selected">
+				        <!--<span data-bind="text: $index"> </span>-->
+				        <span data-bind="text: name, click: $parent.showDetail"> </span>
+				        <img data-bind="attr: {src: rating_img}">
+				        <span data-bind="text: neighborhoods"></span>
+				        <div id="dialog" class="dialogBox" title = "Details" data-bind="text: name">
+						</div>
+				    </li>
+				</ul>
+			</form>
+			<br>
+			<div id = "map" class = "map-div">
+			</div>
+			<div id = "mapErr"></div>
+			<div id = "mapErrDetails" class="map-err-details"></div>
+		</main>
+	</div>
 </body>
 </html>

@@ -3,6 +3,8 @@ $(function() {
 	var map;
 	var markers=[];
 	var bounds;
+	var errMap;
+	var errMapDetail="";
 
 	const YELP_KEY = 'bv-f4fN8pfiBGodIp824VA';
     const YELP_KEY_SECRET = 'Lmq4G67yJ8avCfy6LqCaxFiEm1E';
@@ -84,6 +86,24 @@ $(function() {
 					};
 					console.log("in pinPoster:"+name+":"+ location + category);
 					service.textSearch(request, MapView.callback);
+					if (errMapDetail.length>0) {
+						errMap = "Sorry, some error may have occurred on Google Map. You may not get complete info.";
+						console.log("Pinposter ERROR: "+ errMap);
+						$("#mapErr").html(errMap);
+						$("#mapErr").append("<a href='#' id='clickForErr'>Click for Details</a'");
+						var msg = name+":"+category+":"+location+":"+errMapDetail;
+						$('#mapErrDetails').html(msg);
+						$("#clickForErr").click(function() {
+
+							console.log(msg);
+							$(".map-err-details").toggle();
+						});
+					}
+					else {
+						$("#mapErr").html("");
+						$("clickForErr").remove();
+						$('#mapErrDetails').html("");
+					}
 				}
 
 			} else {
@@ -163,12 +183,15 @@ $(function() {
 					MapView.createMarker(results[r]);
 				*/
 			}else {
+				/*
 				var map_err_div = document.getElementById("map_err");
 				if (map_err_div) {
 					$("#map_err").html("Sorry, some issue occurred in map search: " + status);
 				} else {
 					$("#map").prepend("<div id='map_err class='show-err'>Sorry, some issue occurred in map search." +status);
 				}
+				*/
+				errMapDetail += status + "; "
 			}
 
 		},
@@ -356,6 +379,9 @@ $(function() {
 
 
 		self.reset = function() {
+				errMap="";
+				errMapDetail="";
+				self.errMsg("");
 				self.locations().forEach(function(loc) {
 					loc.selected(loc.category() === self.type());
 					console.log("Type is: "+loc.category() + "Self type: "+self.type());
@@ -375,6 +401,9 @@ $(function() {
 
 		self.searchPlace = function () {
 			console.log("In Search:"+self.search_term());
+			errMap="";
+			errMapDetail="";
+
 
 			var re = new RegExp(self.search_term(), "i");
 			MapView.clearMarkers();
@@ -457,11 +486,22 @@ $(function() {
 			$('#minus').toggleClass("hidden");
 		};
 
+		self.showList = function() {
+			console.log("in showList");
+			$("#selected-list").toggleClass("open");
+		}
+
+		self.closeList = function() {
+			console.log("in closeList");
+			$("#selected-list").removeClass("open");
+		}
+
+		/*
 		self.showChoices = function() {
 			console.log("In showChoices!");
 			$('#selected-list').toggleClass("head");
 		};
-
+		*/
 		/*
 		ViewModel.getPlaces = function() {
 			var retArr = [];
