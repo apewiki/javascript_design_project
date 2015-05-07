@@ -1,10 +1,13 @@
-html, body {
+html, body, main {
 	margin: 0;
 	padding: 0;
+	width: 100%;
+	height: 100%;
 }
 
 .container {
 	width: 90%;
+	height: 100%;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -14,8 +17,10 @@ h3{
 }
 
 .map-div {
-	min-height: 400px;
+	/*position: absolute;*/
 	width: 100%;
+	height: 70%;
+	margin-bottom: 5px;
 }
 
 .head {
@@ -79,6 +84,9 @@ h3{
 }
 */
 @media screen and (max-width: 500px)  {
+	.nav span {
+		font-size: 24px;
+	}
 
 	.nav-div {
 		width: 100%;
@@ -181,9 +189,16 @@ h3{
 */
 }
 
+@media screen and (min-width: 900px) {
+	.container {
+		width: 70%;
+	}
+}
+
+
 /*with KO, selector input[type="text"] does not work!*/
 .search-box {
-	min-width: 180px;
+	min-width: 200px;
 	padding: 5px;
 	outline: none;
 	border: 2px solid #999999;

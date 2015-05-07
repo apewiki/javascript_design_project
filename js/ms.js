@@ -86,28 +86,29 @@ $(function() {
 					};
 					console.log("in pinPoster:"+name+":"+ location + category);
 					service.textSearch(request, MapView.callback);
-					if (errMapDetail.length>0) {
-						errMap = "Sorry, some error may have occurred on Google Map. You may not get complete info.";
-						console.log("Pinposter ERROR: "+ errMap);
-						$("#mapErr").html(errMap);
-						$("#mapErr").append("<a href='#' id='clickForErr'>Click for Details</a'");
-						var msg = name+":"+category+":"+location+":"+errMapDetail;
-						$('#mapErrDetails').html(msg);
-						$("#clickForErr").click(function() {
-
-							console.log(msg);
-							$(".map-err-details").toggle();
-						});
-					}
-					else {
-						$("#mapErr").html("");
-						$("clickForErr").remove();
-						$('#mapErrDetails').html("");
-					}
 				}
 
 			} else {
 				console.log("no map to post pins!");
+				errMapDetail="Google Map is not available.";
+			}
+			if (errMapDetail.length>0) {
+				errMap = "Sorry, some error may have occurred on Google Map. You may not get complete info.";
+				console.log("Pinposter ERROR: "+ errMap);
+				$("#mapErr").html(errMap);
+				$("#mapErr").append("<a href='#' id='clickForErr'>Click for Details</a'");
+				var msg = name+":"+category+":"+location+":"+errMapDetail;
+				$('#mapErrDetails').html(msg);
+				$("#clickForErr").click(function() {
+
+					console.log(msg);
+					$(".map-err-details").toggle();
+				});
+			}
+			else {
+				$("#mapErr").html("");
+				$("clickForErr").remove();
+				$('#mapErrDetails').html("");
 			}
 
 		},
@@ -404,7 +405,7 @@ $(function() {
 			console.log("In Search:"+self.search_term());
 			errMap="";
 			errMapDetail="";
-
+			//self.type("All Categories");
 
 			var re = new RegExp(self.search_term(), "i");
 			MapView.clearMarkers();
@@ -412,15 +413,17 @@ $(function() {
 			if (self.search_term().length>0) {
 
 				self.locations().forEach(function(loc) {
-					if (loc.name().search(re) === -1) {
-						loc.selected(false);
-					} else {
-						console.log("In Search: Found place: " + loc.name());
-						loc.selected(true);
-						MapView.pinPoster(loc.name(), self.getGoogleTypes(loc.category()), loc.address());
-						//manageDialog(loc, false);
+					if (loc.category() === self.type()) {
+						if (loc.name().search(re) === -1) {
+							loc.selected(false);
+						} else {
+							console.log("In Search: Found place: " + loc.name());
+							loc.selected(true);
+							MapView.pinPoster(loc.name(), self.getGoogleTypes(loc.category()), loc.address());
+							//manageDialog(loc, false);
+						}
 					}
-				});
+									});
 				//Use visible binding!!!
 			} else {
 				self.reset();
@@ -490,11 +493,15 @@ $(function() {
 		self.showList = function() {
 			console.log("in showList");
 			$("#selected-list").toggleClass("open");
-		}
+		};
 
 		self.closeList = function() {
 			console.log("in closeList");
 			$("#selected-list").removeClass("open");
+		};
+
+		self.select = function() {
+			$('#search_term').select();
 		}
 
 		/*
@@ -556,6 +563,9 @@ $(function() {
 	MapView.initMap();
 	var viewModel = new ViewModel();
 	ko.applyBindings(viewModel);
+	window.addEventListener("resize", function() {
+		map.fitBounds(bounds);
+	})
 	//viewModel.reload();
 	//AppView.init();
 
