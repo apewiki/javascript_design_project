@@ -50,10 +50,34 @@ h3{
 	color: red;
 }
 
+.nav{
+	width: 100%;
+	margin-left: auto;
+	margin-right: auto;
+	display: flex;
+}
+
+.nav span {
+	padding: 15px ;
+	font-size: 28px;
+	font-weight: bold;
+}
+
 .nav-menu {
 	display: none;
 }
 
+/*
+.nav-header {
+	font-weight: 700;
+	color: black;
+	text-align: center;
+	font-size: 28px;
+	width: 100%;
+	margin-left: auto;
+	margin-right: auto;
+}
+*/
 @media screen and (max-width: 500px)  {
 
 	.nav-div {
@@ -63,13 +87,15 @@ h3{
 	}
 
 	.nav-menu {
+		content: url("../images/hamburger_menu_sm.png");
 		position: relative;
 		display: block;
-		font-weight: 700;
-		color: black;
-		text-decoration: none;
+	}
+
+	.nav span {
+		position: relative;
+		float: left;
 		text-align: left;
-		font-size: 28px;
 	}
 
 	.head {

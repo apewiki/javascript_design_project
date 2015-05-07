@@ -144,7 +144,7 @@ $(function() {
 
 			var infowindow = new google.maps.InfoWindow();
 
-			google.maps.event.addListener(marker, 'click', function() {
+			google.maps.event.addListener(marker, 'mouseup', function(e) {
 				var service = new google.maps.places.PlacesService(map);
 				var request = {
 					placeId: placeData.place_id
@@ -163,6 +163,7 @@ $(function() {
 				}
 				infowindow.open(map, marker);
 				marker.setAnimation(google.maps.Animation.BOUNCE);
+				e.stop();
 			});
 
 			google.maps.event.addListener(infowindow,'closeclick', function() {
@@ -247,7 +248,7 @@ $(function() {
 		}
 
 		function loadPlaces(type,yelp_filter, google_types) {
-			var yelp_url = "http://api.yelp.com/v2/search";
+			var yelp_url = "https://api.yelp.com/v2/search";
 		   // var yelpRequestTimeout = setTimeout(function(){
 		   //     errMsg = "failed to get yelp resources";
 		    //}, 8000);

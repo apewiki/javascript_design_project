@@ -7,7 +7,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
-    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=places"></script>
     <script src="node_modules/oauth-signature/dist/oauth-signature.js"></script>
 
     <script src="js/ms.js"></script>
@@ -18,7 +18,12 @@
 </head>
 <body>
 	<div class="container">
+		<!-- unicode hamburger not showing up on cell phone!
 		<a href="#" class="nav-menu" data-bind="click: showList">&#9776; New York for Foodies</a>
+	-->
+		<div class="nav">
+			<a href="#" class="nav-menu" data-bind="click: showList"></a><span class="nav-header">New York for Foodies</span>
+		</div>
 		<main data-bind="click: closeList">
 			<div class="nav-div">
 				<ul class="head" data-bind="foreach: infoTypes" id="selected-list">
