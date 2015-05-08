@@ -1,0 +1,292 @@
+diff --git a/css/main.css b/css/main.css
+index 0b4a550..37bb0be 100644
+--- a/css/main.css
++++ b/css/main.css
+@@ -55,9 +55,8 @@ h3{
+ }
+ 
+ @media screen and (max-width: 400px)  {
+-
+ 	.nav-div {
+-		width: 100%;
++		width: 60%;
+ 		margin-right: auto;
+ 		margin-left: auto;
+ 	}
+@@ -65,47 +64,6 @@ h3{
+ 	.nav-menu {
+ 		position: relative;
+ 		display: block;
+-		font-weight: 700;
+-		color: black;
+-		text-decoration: none;
+-		text-align: left;
+-		font-size: 28px;
+-	}
+-
+-	.head {
+-		display:block;
+-		z-index: 10;
+-		width: 180px;
+-		background-color: #fff;
+-		position: absolute;
+-		margin-top: 0;
+-		-webkit-transform: translate(-500px,0);
+-		transform: translate(-500px, 0);
+-		transition: transform 0.3s ease;
+-	}
+-
+-	.head.open {
+-		-webkit-transform: translate(-50px,0);
+-		transform: translate(-50px, 0);
+-	}
+-
+-	#selected-list li {
+-		width: 100%;
+-		display: list-item;
+-		text-align: left;
+-		border-bottom: 1px solid #E0E0E0;
+-		border-color: #E0E0E0;
+-		border-radius: 1px;
+-	}
+-
+-	.plusminus {
+-		font-size: 16px;
+-	}
+-
+-/*
+-	.nav-menu {
+-		position: relative;
+-		display: block;
+ 		text-decoration: none;
+ 		text-align: center;
+ 		line-height: 20px;
+@@ -118,7 +76,7 @@ h3{
+ 	}
+ 
+ 	.nav-menu:after {
+-		//unicode for downward pointing arrow
++		/*unicode for downward pointing arrow*/
+ 		content: "\25BC";
+ 		font-size: 0.5em;
+ 		display: block;
+@@ -128,7 +86,7 @@ h3{
+ 		position:absolute;
+ 	}
+ 
+-
++	
+ 	.head {
+ 		display:none;
+ 		position: relative;
+@@ -152,7 +110,7 @@ h3{
+ 		border-radius: 2px;
+ 		border-width: 1px;
+ 	}
+-*/
++
+ }
+ 
+ /*with KO, selector input[type="text"] does not work!*/
+@@ -195,8 +153,7 @@ h3{
+ 	font-weight: bold;
+ 	min-width: 48px;
+ 	text-decoration: none;
+-	padding-left: 5px;
+-	font-size: 28px;
++	padding-left: 5px
+ }
+ 
+ .hidden {
+@@ -207,6 +164,7 @@ h3{
+ 	display: none;
+ }
+ 
+-.map-err-details {
+-	display: none;
++.show-err{
++	position: absolute;
++	z-index: 500;
+ }
+\ No newline at end of file
+diff --git a/js/ms.js b/js/ms.js
+index 1c25a41..f64fe52 100644
+--- a/js/ms.js
++++ b/js/ms.js
+@@ -3,8 +3,6 @@ $(function() {
+ 	var map;
+ 	var markers=[];
+ 	var bounds;
+-	var errMap;
+-	var errMapDetail="";
+ 
+ 	const YELP_KEY = 'bv-f4fN8pfiBGodIp824VA';
+     const YELP_KEY_SECRET = 'Lmq4G67yJ8avCfy6LqCaxFiEm1E';
+@@ -86,24 +84,6 @@ $(function() {
+ 					};
+ 					console.log("in pinPoster:"+name+":"+ location + category);
+ 					service.textSearch(request, MapView.callback);
+-					if (errMapDetail.length>0) {
+-						errMap = "Sorry, some error may have occurred on Google Map. You may not get complete info.";
+-						console.log("Pinposter ERROR: "+ errMap);
+-						$("#mapErr").html(errMap);
+-						$("#mapErr").append("<a href='#' id='clickForErr'>Click for Details</a'");
+-						var msg = name+":"+category+":"+location+":"+errMapDetail;
+-						$('#mapErrDetails').html(msg);
+-						$("#clickForErr").click(function() {
+-
+-							console.log(msg);
+-							$(".map-err-details").toggle();
+-						});
+-					}
+-					else {
+-						$("#mapErr").html("");
+-						$("clickForErr").remove();
+-						$('#mapErrDetails').html("");
+-					}
+ 				}
+ 
+ 			} else {
+@@ -183,15 +163,12 @@ $(function() {
+ 					MapView.createMarker(results[r]);
+ 				*/
+ 			}else {
+-				/*
+ 				var map_err_div = document.getElementById("map_err");
+ 				if (map_err_div) {
+ 					$("#map_err").html("Sorry, some issue occurred in map search: " + status);
+ 				} else {
+ 					$("#map").prepend("<div id='map_err class='show-err'>Sorry, some issue occurred in map search." +status);
+ 				}
+-				*/
+-				errMapDetail += status + "; "
+ 			}
+ 
+ 		},
+@@ -379,9 +356,6 @@ $(function() {
+ 
+ 
+ 		self.reset = function() {
+-				errMap="";
+-				errMapDetail="";
+-				self.errMsg("");
+ 				self.locations().forEach(function(loc) {
+ 					loc.selected(loc.category() === self.type());
+ 					console.log("Type is: "+loc.category() + "Self type: "+self.type());
+@@ -401,9 +375,6 @@ $(function() {
+ 
+ 		self.searchPlace = function () {
+ 			console.log("In Search:"+self.search_term());
+-			errMap="";
+-			errMapDetail="";
+-
+ 
+ 			var re = new RegExp(self.search_term(), "i");
+ 			MapView.clearMarkers();
+@@ -486,22 +457,11 @@ $(function() {
+ 			$('#minus').toggleClass("hidden");
+ 		};
+ 
+-		self.showList = function() {
+-			console.log("in showList");
+-			$("#selected-list").toggleClass("open");
+-		}
+-
+-		self.closeList = function() {
+-			console.log("in closeList");
+-			$("#selected-list").removeClass("open");
+-		}
+-
+-		/*
+ 		self.showChoices = function() {
+ 			console.log("In showChoices!");
+ 			$('#selected-list').toggleClass("head");
+ 		};
+-		*/
++
+ 		/*
+ 		ViewModel.getPlaces = function() {
+ 			var retArr = [];
+diff --git a/mapSearch_t.html b/mapSearch_t.html
+index fe7caca..036698d 100644
+--- a/mapSearch_t.html
++++ b/mapSearch_t.html
+@@ -18,40 +18,44 @@
+ </head>
+ <body>
+ 	<div class="container">
+-		<a href="#" class="nav-menu" data-bind="click: showList">&#9776; New York for Foodies</a>
+-		<main data-bind="click: closeList">
+-			<div class="nav-div">
+-				<ul class="head" data-bind="foreach: infoTypes" id="selected-list">
+-					<li><a href="#" data-bind="text: $data, click: $root.getInfoType"></a></li>
+-				</ul>
+-			</div>
+-			<br>
+-			<div id="err" data-bind="text: errMsg"></div>
+ 
+-			<form id="result_form" data-bind="submit:redirect">
+-				<a href="#" id="plus" class="plusminus" data-bind="click: toggleList">+ <span data-bind="text: type"></span></a>
+-				<a href="#" id="minus" class="plusminus hidden" data-bind="click: toggleList">- <span data-bind="text: type"></a>
++		<h3>New York for Foodies</h3>
++		<div class="nav-div">
++			<a href="#" class="nav-menu">Fun Things To Do</a>
++			<ul class="head" data-bind="foreach: infoTypes" id="selected-list">
++				<li><a href="#" data-bind="text: $data, click: $root.getInfoType"></a></li>
++			<!--
++				<li id="topFood"> Top Food </li>
++				<li id="hotels"> Hotels </li>
++				<li id="destinations"> Places of Interest </li>
++				<li if="transits"> Transits</li>
++			-->
++			</ul>
++		</div>
++		<br>
++		<div id="err" data-bind="text: errMsg"></div>
++		
++		<form id="result_form" data-bind="submit:redirect">
++			<a href="#" id="plus" class="plusminus" data-bind="click: toggleList">+ <span data-bind="text: type"></span></a>
++			<a href="#" id="minus" class="plusminus hidden" data-bind="click: toggleList">- <span data-bind="text: type"></a>
++			
++			<input class="search-box" id="search_term" data-bind="textInput: search_term, event:{keyup: searchPlace}">
++			<button type="submit" class="btn-noshow"></button>
+ 
+-				<input class="search-box" id="search_term" data-bind="textInput: search_term, event:{keyup: searchPlace}">
+-				<button type="submit" class="btn-noshow"></button>
+-
+-				<ul id="loc_list" class ="loc-list" data-bind="foreach: locations">
+-				    <li data-bind="visible: selected">
+-				        <!--<span data-bind="text: $index"> </span>-->
+-				        <span data-bind="text: name, click: $parent.showDetail"> </span>
+-				        <img data-bind="attr: {src: rating_img}">
+-				        <span data-bind="text: neighborhoods"></span>
+-				        <div id="dialog" class="dialogBox" title = "Details" data-bind="text: name">
+-						</div>
+-				    </li>
+-				</ul>
+-			</form>
+-			<br>
+-			<div id = "map" class = "map-div">
+-			</div>
+-			<div id = "mapErr"></div>
+-			<div id = "mapErrDetails" class="map-err-details"></div>
+-		</main>
+-	</div>
++			<ul id="loc_list" class ="loc-list" data-bind="foreach: locations">
++			    <li data-bind="visible: selected">
++			        <!--<span data-bind="text: $index"> </span>-->
++			        <span data-bind="text: name, click: $parent.showDetail"> </span>
++			        <img data-bind="attr: {src: rating_img}">
++			        <span data-bind="text: neighborhoods"></span>
++			        <div id="dialog" class="dialogBox" title = "Details" data-bind="text: name">
++					</div>
++			    </li>
++			</ul>
++		</form>
++		<br>
++		<div id = "map" class = "map-div">
++		</div>
++</div>
+ </body>
+ </html>
+\ No newline at end of file

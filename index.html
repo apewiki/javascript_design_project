@@ -24,8 +24,8 @@
 		<div class="nav">
 			<a href="#" class="nav-menu" data-bind="click: showList"></a><span class="nav-header">New York for Foodies</span>
 		</div>
-		<main data-bind="click: closeList">
-			<div class="nav-div">
+		<main>
+			<div class="nav-div" data-bind="click: closeList">
 				<ul class="head" data-bind="foreach: infoTypes" id="selected-list">
 					<li><a href="#" data-bind="text: $data, click: $root.getInfoType"></a></li>
 				</ul>
