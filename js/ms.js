@@ -5,6 +5,7 @@ $(function() {
 	var bounds;
 	var errMap;
 	var errMapDetail="";
+	var query_overLimit=[];
 
 	const YELP_KEY = 'bv-f4fN8pfiBGodIp824VA';
     const YELP_KEY_SECRET = 'Lmq4G67yJ8avCfy6LqCaxFiEm1E';
@@ -74,18 +75,43 @@ $(function() {
 					MapView.setBounds(marker);
 				} else {
 					console.log("in pinPoster: DID NOT Find Marker "+name);
-					var service = new google.maps.places.PlacesService(map);
+					/*var service = new google.maps.places.PlacesService(map);
 					//var type_string = [];
 					//type_string.push(category);
 
 					var request = {
 						location: map.getCenter(),
 						radius: '5000',
-						query: name + ' in New York',
-						types: category
-					};
+						query: location
+						//types: category
+					};*/
+					var geoCoder = new google.maps.Geocoder();
 					console.log("in pinPoster:"+name+":"+ location + category);
-					service.textSearch(request, MapView.callback);
+					console.log(location.toString());
+
+					geoCoder.geocode({'address':location.toString()}, function(results, status) {
+						if (status == google.maps.GeocoderStatus.OK) {
+							MapView.createMarker(name, results[0]);
+						} else if (status ==  google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
+							console.log("In Pinposter: OVER_QUERY_LIMIT:" + name );
+
+						} else {
+							errMapDetail += status+";";
+						}
+					})
+					/*
+					service.textSearch(request, function(results, status) {
+
+						if(status == google.maps.places.PlacesServiceStatus.OK) {
+							MapView.createMarker(name, results[0]);
+						} else if (status = google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT){
+							console.log("In Pinposter: OVER_QUERY_LIMIT:" + name );
+							query_overLimit.push(name);
+						} else {
+							errMapDetail += status +";";
+						}
+					});*/
+
 				}
 
 			} else {
@@ -113,26 +139,28 @@ $(function() {
 
 		},
 
-		createMarker : function (placeData) {
-			console.log("in createMakrker: "+placeData.name);
+		createMarker : function (name, placeData) {
+			//console.log("in createMakrker: "+placeData.name);
+			console.log("in createMakrker: "+name);
 			var lat = placeData.geometry.location.lat();
 			var lng = placeData.geometry.location.lng();
 
-			var image = {
+			/*var image = {
 				url: placeData.icon,
 				size: new google.maps.Size(71, 71),
 				origin: new google.maps.Point(0,0),
 				anchor: new google.maps.Point(17, 34),
 				scaledSize: new google.maps.Size(25,25)
-			};
+			};*/
 
 
 			var marker = new google.maps.Marker({
 				position: placeData.geometry.location,
 				map: map,
-				icon: image,
+				//icon: image,
 				animation: google.maps.Animation.DROP,
-				title: placeData.name + ", " + placeData.formatted_address
+				//title: placeData.name + ", " + placeData.formatted_address
+				title: name +"," + placeData.formatted_address
 			});
 
 			markers.push(marker);
@@ -146,7 +174,7 @@ $(function() {
 			var infowindow = new google.maps.InfoWindow();
 
 			google.maps.event.addListener(marker, 'mouseup', function(e) {
-				var service = new google.maps.places.PlacesService(map);
+				/*var service = new google.maps.places.PlacesService(map);
 				var request = {
 					placeId: placeData.place_id
 				};
@@ -154,6 +182,7 @@ $(function() {
 
 				function callback(place, status) {
 					var infoContent = '';
+
 					if (status == google.maps.places.PlacesServiceStatus.OK) {
 						infoContent = "<a href="+place.website+" target='_blank'>"+place.name+"</a> Tel: "+ place.formatted_phone_number;
 						console.log(infoContent);
@@ -161,7 +190,8 @@ $(function() {
 						infoContent = placeData.name;
 					}
 					infowindow.setContent(infoContent);
-				}
+				}*/
+				infowindow.setContent(name);
 				infowindow.open(map, marker);
 				marker.setAnimation(google.maps.Animation.BOUNCE);
 				e.stop();
@@ -307,9 +337,20 @@ $(function() {
 		               	self.locations.push(new Place(bizname, type, selected, bizAddress, bizNeighborhoods, bizurl, bizRating,
 		               		rating_img_url, bizSnippet));
 		               	//console.log("After AJAX call:"+self.locations().length + "Google Type: " + google_types);
-		               	if (selected) {
-		               		MapView.pinPoster(bizname, google_types, bizAddress);
+		               	if (i>0 && i%5==0) {
+		               		console.log("try to pause");
+		               		setTimeout(function() {
+		               			if (selected) {
+				               		MapView.pinPoster(bizname, google_types, bizAddress);
+				               	}
+
+		               		}, 2000);
+		               	} else {
+		               		if (selected) {
+				               	MapView.pinPoster(bizname, google_types, bizAddress);
+				            }
 		               	}
+
 		            }
 
 
@@ -322,7 +363,6 @@ $(function() {
 		        }
 
 		    });
-
 		};
 
 		//This does not work
@@ -377,12 +417,20 @@ $(function() {
 			//console.log("In getInfoType: " + self.locations.length);
 
 			//MapView.setAllMarkers();
+			/* This delay does not work well, because there is still over limit
+			if (query_overLimit.length) {
+				window.setTimeout(function() {
+					console.log("In getInfoType: Try reset again!");
+					self.reset();
+				}, 2000);
+			}*/
 		};
 
 
 		self.reset = function() {
 				errMap="";
 				errMapDetail="";
+				query_overLimit=[];
 				self.errMsg("");
 				self.locations().forEach(function(loc) {
 					loc.selected(loc.category() === self.type());
@@ -392,7 +440,13 @@ $(function() {
 						MapView.pinPoster(loc.name(), self.google_types, loc.address());
 					}
 				});
-
+				/*
+				Here is the issue,
+				for (var i=0; i<query_overLimit.length; i++) {
+					console.log("In reset over Limit:"+query_overLimit[i]);
+					MapView.pinPoster(query_overLimit[i], self.google_types,"");
+				}
+				*/
 		};
 
 		/*
