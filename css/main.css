@@ -100,6 +100,15 @@ h3{
 		display: block;
 	}
 
+	.nav-menu:after {
+		content: url("../images/hamburger_menu_sm.png");
+		min-width: 48px;
+		position: relative;
+		display: block;
+		padding-top: 10px;
+	}
+
+
 	.nav span {
 		position: relative;
 		float: left;
