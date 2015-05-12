@@ -261,7 +261,7 @@ $(function() {
 		self.infoTypes.push(ko.observable('Ice Cream'));
 		self.infoTypes.push(ko.observable('Shop'));
 
-		loadAll();
+		//self.loadAll();
 
 		self.search_term = ko.observable("");
 
@@ -270,19 +270,20 @@ $(function() {
 			console.log(loc.name() + ':' +loc.category() + ":"+loc.selected());
 		});
 
-		function loadAll()
-		{
-			loadPlaces('restaurant', 'restaurants',['restaurant']);
-			loadPlaces('cafe, coffee shop', '', []);
-			loadPlaces('ice cream parlor, candy shop','',['food']);
-			loadPlaces('shopping, shopping mall','shopping','');
-		}
+		self.loadAll = function() {
+			self.type('restaurant');
+			self.loadPlaces('restaurant', 'restaurants',['restaurant']);
+			self.loadPlaces('cafe, coffee shop', '', []);
+			self.loadPlaces('ice cream parlor, candy shop','',['food']);
+			self.loadPlaces('shopping, shopping mall','shopping','');
+		};
 
-		function loadPlaces(type,yelp_filter, google_types) {
+		self.loadPlaces = function(type,yelp_filter, google_types) {
 			var yelp_url = "https://api.yelp.com/v2/search";
 		   // var yelpRequestTimeout = setTimeout(function(){
 		   //     errMsg = "failed to get yelp resources";
 		    //}, 8000);
+
 
 		    var nonce = (Math.floor(Math.random() * 1e12).toString());
 		    var parameters = {
@@ -337,19 +338,14 @@ $(function() {
 		               	self.locations.push(new Place(bizname, type, selected, bizAddress, bizNeighborhoods, bizurl, bizRating,
 		               		rating_img_url, bizSnippet));
 		               	//console.log("After AJAX call:"+self.locations().length + "Google Type: " + google_types);
-		               	if (i>0 && i%5==0) {
-		               		console.log("try to pause");
-		               		setTimeout(function() {
+		               
+		               	/*setTimeout(function() {
 		               			if (selected) {
 				               		MapView.pinPoster(bizname, google_types, bizAddress);
 				               	}
 
-		               		}, 2000);
-		               	} else {
-		               		if (selected) {
-				               	MapView.pinPoster(bizname, google_types, bizAddress);
-				            }
-		               	}
+		               		}, 1000);*/
+		         
 
 		            }
 
@@ -363,6 +359,8 @@ $(function() {
 		        }
 
 		    });
+
+			self.reset();
 		};
 
 		//This does not work
@@ -432,12 +430,17 @@ $(function() {
 				errMapDetail="";
 				query_overLimit=[];
 				self.errMsg("");
+				var i=0;
+
 				self.locations().forEach(function(loc) {
 					loc.selected(loc.category() === self.type());
 					console.log("Type is: "+loc.category() + "Self type: "+self.type());
 					if (loc.selected()) {
 						console.log("!!!Set Pin: " + loc.name() + ":"+loc.category());
-						MapView.pinPoster(loc.name(), self.google_types, loc.address());
+						setTimeout(function() {
+							MapView.pinPoster(loc.name(), self.google_types, loc.address());
+						}, i*500);
+						i++;
 					}
 				});
 				/*
@@ -579,6 +582,8 @@ $(function() {
 			console.log(retArr);
 			return retArr;
 		};*/
+
+		self.loadAll();
 	};
 
 
