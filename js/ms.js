@@ -65,7 +65,7 @@ $(function() {
 			return null;
 		},
 
-		pinPoster : function(name, category, location) {
+		pinPoster : function(name, category, location, delay) {
 			if (map) {
 				var marker = MapView.findMarker(name);
 				if (marker) {
@@ -85,7 +85,8 @@ $(function() {
 						types: category
 					};
 					console.log("in pinPoster:"+name+":"+ location + category);
-					service.textSearch(request, MapView.callback);
+					setTimeout(function() {
+						service.textSearch(request, MapView.callback);}, 500*delay);
 				}
 
 			} else {
@@ -308,7 +309,7 @@ $(function() {
 		               		rating_img_url, bizSnippet));
 		               	//console.log("After AJAX call:"+self.locations().length + "Google Type: " + google_types);
 		               	if (selected) {
-		               		MapView.pinPoster(bizname, google_types, bizAddress);
+		               		MapView.pinPoster(bizname, google_types, bizAddress, 0);
 		               	}
 		            }
 
@@ -384,12 +385,14 @@ $(function() {
 				errMap="";
 				errMapDetail="";
 				self.errMsg("");
+				var i=0;
 				self.locations().forEach(function(loc) {
 					loc.selected(loc.category() === self.type());
 					console.log("Type is: "+loc.category() + "Self type: "+self.type());
 					if (loc.selected()) {
 						console.log("!!!Set Pin: " + loc.name() + ":"+loc.category());
-						MapView.pinPoster(loc.name(), self.google_types, loc.address());
+						MapView.pinPoster(loc.name(), self.google_types, loc.address(),i);
+						i++;
 					}
 				});
 
@@ -419,7 +422,7 @@ $(function() {
 						} else {
 							console.log("In Search: Found place: " + loc.name());
 							loc.selected(true);
-							MapView.pinPoster(loc.name(), self.getGoogleTypes(loc.category()), loc.address());
+							MapView.pinPoster(loc.name(), self.getGoogleTypes(loc.category()), loc.address(),0);
 							//manageDialog(loc, false);
 						}
 					}
