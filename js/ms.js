@@ -62,12 +62,13 @@ $(function() {
 
 		findMarker: function(name) {
 			for (var i =0; i<markers.length; i++) {
-				var marker_name = markers[i].title.split(',')[0];
+				//var marker_name = markers[i].title.split(',')[0];
+				var marker_name = markers[i].name;
 				var re = new RegExp(name, 'i');
 				var search_r = marker_name.search(re);
 				//console.log("In findMarker: marker_name: "+marker_name+" search_term: "+name+ "Regular Exp: "+re +"search result: " + search_r);
 				if (search_r != -1) {
-					return markers[i];
+					return markers[i].marker;
 				}
 			};
 			return null;
@@ -94,7 +95,16 @@ $(function() {
 					};
 					console.log("in pinPoster:"+name+":"+ location + category);
 					setTimeout(function() {
-						service.textSearch(request, MapView.callback);}, 500*delay);
+						service.textSearch(request, function(results, status){
+							console.log("callback stauts:" + status);
+							if (status == google.maps.places.PlacesServiceStatus.OK) {
+								console.log("in callback, number of results:"+results.length);
+								MapView.createMarker(name, results[0]);
+							} else {
+								errMapDetail += status + "; ";
+							}
+						});
+					}, 500*delay);
 				}
 
 			} else {
@@ -122,7 +132,7 @@ $(function() {
 
 		},
 
-		createMarker : function (placeData) {
+		createMarker : function (name, placeData) {
 			console.log("in createMakrker: "+placeData.name);
 			var lat = placeData.geometry.location.lat();
 			var lng = placeData.geometry.location.lng();
@@ -144,7 +154,7 @@ $(function() {
 				title: placeData.name + ", " + placeData.formatted_address
 			});
 
-			markers.push(marker);
+			markers.push({"name": name, "marker":marker});
 
 			/*bounds.extend(new google.maps.LatLng(lat,lng));
 			map.fitBounds(bounds);
@@ -202,14 +212,14 @@ $(function() {
 					$("#map").prepend("<div id='map_err class='show-err'>Sorry, some issue occurred in map search." +status);
 				}
 				*/
-				errMapDetail += status + "; "
+				errMapDetail += status + "; ";
 			}
 
 		},
 
 		clearMarkers: function() {
-			markers.forEach(function(marker) {
-				marker.setMap(null);
+			markers.forEach(function(m) {
+				m.marker.setMap(null);
 			})
 			bounds = new google.maps.LatLngBounds();
 		},
