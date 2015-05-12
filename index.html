@@ -4,7 +4,7 @@
 	<title>Map Search Project</title>
 	<meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="js/jquery-2.1.4.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=places"></script>
@@ -31,7 +31,7 @@
 				</ul>
 			</div>
 			<br>
-			<div id="err" data-bind="text: errMsg"></div>
+			<div id="err" data-bind="text: errMsg" class="err-display"></div>
 
 			<form id="result_form" data-bind="submit:redirect">
 				<a href="#" id="plus" class="plusminus" data-bind="click: toggleList">+ <span data-bind="text: type"></span></a>

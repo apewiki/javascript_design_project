@@ -251,3 +251,9 @@ h3{
 .map-err-details {
 	display: none;
 }
+
+.err-display {
+	font-size: 24px;
+	color: red;
+	font-weight: bold;
+}

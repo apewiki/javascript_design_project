@@ -31,17 +31,25 @@ $(function() {
 
 
 		initMap : function() {
+			if (typeof(google) === 'object' && typeof(google.maps) ==='object') {
+				map = new google.maps.Map(document.getElementById('map'), {
+					center: {lat: NYLAT, lng:NYLNG},
+					zoom: 12,
+					disableDefaultUI: true
+				});
+				bounds = new google.maps.LatLngBounds();
+				return true;
 
-			map = new google.maps.Map(document.getElementById('map'), {
-				center: {lat: NYLAT, lng:NYLNG},
-				zoom: 12,
-				disableDefaultUI: true
-			});
-			bounds = new google.maps.LatLngBounds();
+				//console.log("No of places selected:" + ViewModel.getPlaces().length);
+				//MapView.setAllMarkers();
+				//console.log("initMap is called");
+			} else {
+				$(".nav").after("<p> Google Map is not available, please check internet connection.</p>");
+				$('main').hide();
+				return false;
+			}
 
-			//console.log("No of places selected:" + ViewModel.getPlaces().length);
-			//MapView.setAllMarkers();
-			//console.log("initMap is called");
+
 		},
 
 		/*setAllMarkers: function() {
@@ -563,12 +571,14 @@ $(function() {
 */
 
 	//window.addEventListener('load', MapView.initMap);
-	MapView.initMap();
-	var viewModel = new ViewModel();
-	ko.applyBindings(viewModel);
-	window.addEventListener("resize", function() {
-		map.fitBounds(bounds);
-	})
+	if (MapView.initMap()) {
+		var viewModel = new ViewModel();
+		ko.applyBindings(viewModel);
+		window.addEventListener("resize", function() {
+			map.fitBounds(bounds);
+		})
+	}
+
 	//viewModel.reload();
 	//AppView.init();
 
