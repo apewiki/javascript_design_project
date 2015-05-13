@@ -104,7 +104,7 @@ $(function() {
 								errMapDetail += status + "; ";
 							}
 						});
-					}, 500*delay);
+					}, 250*delay);
 				}
 
 			} else {
