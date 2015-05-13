@@ -13,8 +13,10 @@ $(function() {
     const MYLOCATION = 'New York, NY';
     const NYLAT=40.733;
     const NYLNG=-73.9797;
+    const YELP_URL = "https://api.yelp.com/v2/search";
 
 
+    //Place object definition
 	var Place = function(name, category,selected, address, neighborhoods, url, rating, rating_img_url, snippet) {
 		this.name = ko.observable(name);
 		this.category = ko.observable(category);
@@ -29,8 +31,9 @@ $(function() {
 
 	var MapView = {
 
-
+		//Initialize google map if api is loaded
 		initMap : function() {
+			//Check if google api is properly loaded
 			if (typeof(google) === 'object' && typeof(google.maps) ==='object') {
 				map = new google.maps.Map(document.getElementById('map'), {
 					center: {lat: NYLAT, lng:NYLNG},
@@ -39,11 +42,8 @@ $(function() {
 				});
 				bounds = new google.maps.LatLngBounds();
 				return true;
-
-				//console.log("No of places selected:" + ViewModel.getPlaces().length);
-				//MapView.setAllMarkers();
-				//console.log("initMap is called");
 			} else {
+				//If google api fails to load, exit and print the error message on screen
 				$(".nav").after("<p> Google Map is not available, please check internet connection.</p>");
 				$('main').hide();
 				return false;
@@ -52,21 +52,12 @@ $(function() {
 
 		},
 
-		/*setAllMarkers: function() {
-			var places = ViewModel.getPlaces();
-			places.forEach(function(loc) {
-				console.log("in setAll Markers:" + loc);
-				MapView.pinPoster(loc.name, loc.category, loc.address);
-			});
-		},*/
-
+		//Find the marker if the location was found and cached
 		findMarker: function(name) {
 			for (var i =0; i<markers.length; i++) {
-				//var marker_name = markers[i].title.split(',')[0];
 				var marker_name = markers[i].name;
 				var re = new RegExp(name, 'i');
 				var search_r = marker_name.search(re);
-				//console.log("In findMarker: marker_name: "+marker_name+" search_term: "+name+ "Regular Exp: "+re +"search result: " + search_r);
 				if (search_r != -1) {
 					return markers[i].marker;
 				}
@@ -74,18 +65,20 @@ $(function() {
 			return null;
 		},
 
-		pinPoster : function(name, category, location, delay) {
+		//Given name, category, neighbood(location), mark it on google map.
+		pinPoster : function(name, category, location, delay, initLoad) {
 			if (map) {
-				var marker = MapView.findMarker(name);
+				var marker = initLoad? null:MapView.findMarker(name+":"+location);
 				if (marker) {
 					console.log("in pinPost: found marker! " + name);
 					marker.setMap(map);
 					MapView.setBounds(marker);
 				} else {
-					console.log("in pinPoster: DID NOT Find Marker "+name);
+					console.log("in pinPoster: DID NOT Find Marker "+name + ":" + location);
+					//Use google place library service to search for place data (lat, lng, website) of the business
 					var service = new google.maps.places.PlacesService(map);
-					//var type_string = [];
-					//type_string.push(category);
+					var queryString = location && location.length? name + ' near ' + location : name + ' in New York';
+
 
 					var request = {
 						location: map.getCenter(),
@@ -94,24 +87,32 @@ $(function() {
 						types: category
 					};
 					console.log("in pinPoster:"+name+":"+ location + category);
+					//In order to get around QUERY_OVER_LIMIT problem, increase delay on each search by 300 ms
 					setTimeout(function() {
 						service.textSearch(request, function(results, status){
 							console.log("callback stauts:" + status);
 							if (status == google.maps.places.PlacesServiceStatus.OK) {
 								console.log("in callback, number of results:"+results.length);
-								MapView.createMarker(name, results[0]);
+								MapView.createMarker(name+":"+location, results[0]);
 							} else {
 								errMapDetail += status + "; ";
+								alert("An error occurred on google query: " + errMapDetail);
 							}
 						});
-					}, 250*delay);
+					}, 300*delay);
 				}
 
 			} else {
 				console.log("no map to post pins!");
 				errMapDetail="Google Map is not available.";
 			}
+		},
+
+		mapErrorHandle: function() {
+			console.log("What is going on?" + errMapDetail + ":" +errMapDetail.length);
 			if (errMapDetail.length>0) {
+				//Error handling if status other than "OK" is returned from google
+				console.log("Fill in err div:" + errMapDetail);
 				errMap = "Sorry, some error may have occurred on Google Map. You may not get complete info.";
 				console.log("Pinposter ERROR: "+ errMap);
 				$("#mapErr").html(errMap);
@@ -123,20 +124,20 @@ $(function() {
 					console.log(msg);
 					$(".map-err-details").toggle();
 				});
-			}
-			else {
+			} else {
 				$("#mapErr").html("");
 				$("clickForErr").remove();
 				$('#mapErrDetails').html("");
 			}
-
 		},
 
+		//Create marker give place data and store marker in markers array
 		createMarker : function (name, placeData) {
 			console.log("in createMakrker: "+placeData.name);
 			var lat = placeData.geometry.location.lat();
 			var lng = placeData.geometry.location.lng();
 
+			//Properly size the marker icons
 			var image = {
 				url: placeData.icon,
 				size: new google.maps.Size(71, 71),
@@ -144,7 +145,6 @@ $(function() {
 				anchor: new google.maps.Point(17, 34),
 				scaledSize: new google.maps.Size(25,25)
 			};
-
 
 			var marker = new google.maps.Marker({
 				position: placeData.geometry.location,
@@ -155,13 +155,7 @@ $(function() {
 			});
 
 			markers.push({"name": name, "marker":marker});
-
-			/*bounds.extend(new google.maps.LatLng(lat,lng));
-			map.fitBounds(bounds);
-			map.setCenter(bounds.getCenter());*/
 			MapView.setBounds(marker);
-
-
 			var infowindow = new google.maps.InfoWindow();
 
 			google.maps.event.addListener(marker, 'mouseup', function(e) {
@@ -169,6 +163,8 @@ $(function() {
 				var request = {
 					placeId: placeData.place_id
 				};
+
+				//Use place_id to obtain the website url of the business
 				service.getDetails(request, callback);
 
 				function callback(place, status) {
@@ -186,6 +182,7 @@ $(function() {
 				e.stop();
 			});
 
+			//Stop animation if infowindow is closed
 			google.maps.event.addListener(infowindow,'closeclick', function() {
 				if (marker.getAnimation() != null) {
 					marker.setAnimation(null);
@@ -193,30 +190,7 @@ $(function() {
 			});
 		},
 
-		callback : function(results, status) {
-			console.log("callback stauts:" + status);
-			if (status == google.maps.places.PlacesServiceStatus.OK) {
-				console.log("in callback, number of results:"+results.length);
-				MapView.createMarker(results[0]);
-				/*
-				for (var r in results) {
-					//console.log(results[r]);
-					MapView.createMarker(results[r]);
-				*/
-			}else {
-				/*
-				var map_err_div = document.getElementById("map_err");
-				if (map_err_div) {
-					$("#map_err").html("Sorry, some issue occurred in map search: " + status);
-				} else {
-					$("#map").prepend("<div id='map_err class='show-err'>Sorry, some issue occurred in map search." +status);
-				}
-				*/
-				errMapDetail += status + "; ";
-			}
-
-		},
-
+		//Erase all markers from the map
 		clearMarkers: function() {
 			markers.forEach(function(m) {
 				m.marker.setMap(null);
@@ -224,41 +198,42 @@ $(function() {
 			bounds = new google.maps.LatLngBounds();
 		},
 
+		//Set the boundary of the map when a new marker is added
 		setBounds: function(marker) {
 			bounds.extend(new google.maps.LatLng(marker.getPosition().lat(),marker.getPosition().lng()));
 			map.fitBounds(bounds);
 			map.setCenter(bounds.getCenter());
 		},
 
+		//Delete all markers
 		deleteMarkers: function() {
 			MapView.clearMarkers();
 			markers = [];
 		}
 	};
 
+	//View Model
 	var ViewModel = function() {
 		var self = this;
 		self.errMsg = ko.observable("");
 		self.search_term = ko.observable("");
 		self.locations = ko.observableArray([]);
 		self.type = ko.observable("restaurant");
-		//self.filter = "restaurants";
 		self.google_types = ['restaurant'];
 		self.infoTypes = ko.observableArray([]);
 		self.infoTypes.push(ko.observable('Restaurant'));
 		self.infoTypes.push(ko.observable('Cafe'));
 		self.infoTypes.push(ko.observable('Ice Cream'));
 		self.infoTypes.push(ko.observable('Shop'));
+		self.search_term = ko.observable("");
+
 
 		loadAll();
 
-		self.search_term = ko.observable("");
 
 		console.log(self.locations().length);
-		self.locations().forEach(function(loc) {
-			console.log(loc.name() + ':' +loc.category() + ":"+loc.selected());
-		});
 
+		//Load up all business data of interest at start up
 		function loadAll()
 		{
 			loadPlaces('restaurant', 'restaurants',['restaurant']);
@@ -267,12 +242,9 @@ $(function() {
 			loadPlaces('shopping, shopping mall','shopping','');
 		}
 
-		function loadPlaces(type,yelp_filter, google_types) {
-			var yelp_url = "https://api.yelp.com/v2/search";
-		   // var yelpRequestTimeout = setTimeout(function(){
-		   //     errMsg = "failed to get yelp resources";
-		    //}, 8000);
-
+		//Load a set of business data based on category such as restaurant, cafe, shop, etc
+		function loadPlaces(type, yelp_filter, google_types) {
+			//oAuth set up
 		    var nonce = (Math.floor(Math.random() * 1e12).toString());
 		    var parameters = {
 		        oauth_consumer_key: YELP_KEY,
@@ -290,25 +262,26 @@ $(function() {
 		        limit: 10,
 		        sort: 2
 		    };
-		    //if (self.filter.length) {
+
 		    if (yelp_filter.length) {
 		    	parameters.category_filter = yelp_filter;
 		    }
 
-		    var encodedSignature = oauthSignature.generate('GET', yelp_url, parameters,
+		    var encodedSignature = oauthSignature.generate('GET', YELP_URL, parameters,
 		        YELP_KEY_SECRET, YELP_TOKEN_SECRET);
 		    parameters.oauth_signature = encodedSignature;
 		    console.log("obtaining encodedSignature:"+encodedSignature);
 		    var selected = (type === self.type());
 		    console.log("In load: selected or not? "+selected);
 
+		    //Set time out if query is not set up right or yelp is not available
 		    var yelpRequestTimeout = setTimeout(function() {
 		    	self.errMsg("Sorry, request to yelp timed out. Please check your internet connection.");
-		    	//$('#result-form').prepend("<div id='err'>"+errMsg+"</div>");
 		    }, 8000);
 
+		    //jQuery ajax call to Yelp API
 		    $.ajax({
-		        url: yelp_url,
+		        url: YELP_URL,
 		        data: parameters,
 		        cache: true,
 		        dataType: "jsonp",
@@ -322,21 +295,20 @@ $(function() {
 		                var bizSnippet = response.businesses[i].snippet_text;
 		                var bizAddress = response.businesses[i].location.display_address;
 		                var bizNeighborhoods = response.businesses[i].location.neighborhoods;
-		               // console.log(bizname);
+		               // Create a place based on each record received and push it into locations array
 		               	self.locations.push(new Place(bizname, type, selected, bizAddress, bizNeighborhoods, bizurl, bizRating,
 		               		rating_img_url, bizSnippet));
-		               	//console.log("After AJAX call:"+self.locations().length + "Google Type: " + google_types);
+		               	//If a category is selected by default, show markers on the map;
 		               	if (selected) {
-		               		MapView.pinPoster(bizname, google_types, bizAddress, 0);
+		               		MapView.pinPoster(bizname, google_types, bizNeighborhoods, 0, true);
 		               	}
 		            }
-
-
+		            //Clear Timeout if request to Yelp is successful
 		            clearTimeout(yelpRequestTimeout);
 		        },
 		        error: function (response ) {
+		        	//Show error message if request to Yelp failed
 		        	self.errMsg ("Sorry, Yelp search failed.");
-		        	//$('#result-form').prepend("<div id='err'>"+errMsg+"</div>");
 		        	console.log("Failed to search Yelp.");
 		        }
 
@@ -344,15 +316,7 @@ $(function() {
 
 		};
 
-		//This does not work
-		/*self.checkType = ko.pureComputed( function() {
-			console.log("checkType is######## called!" + self.type() + "matching:" + this);
-			console.log("Result:" + self.type().match(new RegExp(this, 'i')));
-			var ret = self.type().match(new RegExp(this, 'i'))? "typeSelected": "typeDeselected";
-			console.log("Result:" + ret);
-			return ret;
-
-		}, self);*/
+		//Set up google filters
 		self.getGoogleTypes = function(type) {
 			var retVal = [];
 			if (type.match(/Restaurant/)) {
@@ -364,6 +328,8 @@ $(function() {
 			return retVal;
 		}
 
+		//This function is called when a category element is clicked.
+		//Subsequently business data relevant to that category is shown as list as well as markers on the map
 		self.getInfoType = function() {
 			self.google_types=[];
 			self.search_term("");
@@ -390,43 +356,36 @@ $(function() {
 				}
 
 			console.log("In GetInfoType: google Type:" +self.google_types);
+			//Clear markers of previously selected category
 			MapView.clearMarkers();
+			//Show markers of currently selected category
 			self.reset();
-			//loadPlaces();
-			//console.log("In getInfoType: " + self.locations.length);
-
-			//MapView.setAllMarkers();
 		};
 
-
+		//This function is called by to put all markers of a selected category on the map
 		self.reset = function() {
-				errMap="";
-				errMapDetail="";
-				self.errMsg("");
-				var i=0;
-				self.locations().forEach(function(loc) {
-					loc.selected(loc.category() === self.type());
-					console.log("Type is: "+loc.category() + "Self type: "+self.type());
-					if (loc.selected()) {
-						console.log("!!!Set Pin: " + loc.name() + ":"+loc.category());
-						MapView.pinPoster(loc.name(), self.google_types, loc.address(),i);
-						i++;
-					}
-				});
-
+			errMap="";
+			errMapDetail="";
+			self.errMsg("");
+			var i=0;
+			self.locations().forEach(function(loc) {
+				loc.selected(loc.category() === self.type());
+				console.log("Type is: "+loc.category() + "Self type: "+self.type());
+				if (loc.selected()) {
+					console.log("!!!Set Pin: " + loc.name() + ":"+loc.category() + loc.neighborhoods());
+					MapView.pinPoster(loc.name(), self.google_types, loc.neighborhoods(),i, false);
+					i++;
+				}
+			});
 		};
 
-		/*
-		self.reload = function() {
-			self.locations = ko.observableArray([]);
-			loadPlaces();
-		};*/
-
+		/*This function is called when user fill in the search box or click an item on the list
+		 Based on the text in search box, the list will be filtered using regular expression matching
+		 The markers of matched business will be shown and all other markers will be cleared from the map*/
 		self.searchPlace = function () {
 			console.log("In Search:"+self.search_term());
 			errMap="";
 			errMapDetail="";
-			//self.type("All Categories");
 
 			var re = new RegExp(self.search_term(), "i");
 			MapView.clearMarkers();
@@ -434,24 +393,26 @@ $(function() {
 			if (self.search_term().length>0) {
 
 				self.locations().forEach(function(loc) {
+					//The search is conducted on selected category only
 					if (loc.category() === self.type()) {
+						//Use knockout "visible" property binding to show the matching list item
 						if (loc.name().search(re) === -1) {
 							loc.selected(false);
 						} else {
 							console.log("In Search: Found place: " + loc.name());
 							loc.selected(true);
-							MapView.pinPoster(loc.name(), self.getGoogleTypes(loc.category()), loc.address(),0);
-							//manageDialog(loc, false);
+							MapView.pinPoster(loc.name(), self.getGoogleTypes(loc.category()), loc.neighborhoods(),0, false);
 						}
 					}
-									});
-				//Use visible binding!!!
+				});
 			} else {
+				//If the search box is empty, show everything on the list.
 				self.reset();
 			}
 
 		};
 
+		//This function is called when user press return on search box
 		self.redirect = function(data, event) {
 
 			console.log("$$$$$$$$$$In redirect:"+self.search_term());
@@ -459,6 +420,8 @@ $(function() {
 			return false;
 		};
 
+		/*Use jQuery UI to show pop up box with detailed info when a list item is clicked.
+		  jQuery UI dialog box set up */
 		$( "#dialog" ).dialog({
 	      autoOpen: false,
 	      show: {
@@ -476,17 +439,7 @@ $(function() {
 	      }
 	    });
 
-	    /*function manageDialog(location, toOPen) {
-	    	if ($('#dialog').dialog('isOpen') || toOpen) {
-	    		$('#dialog').empty();
-				$('#dialog').append("<p>"+location.name()+" Yelp Rating:"+location.rating()+"</p>");
-				$('#dialog').append("<p>"+location.snippet()+"</p>");
-				$("#dialog").dialog("open");
-	    	}
-	    }*/
-
-
-
+		//Use jQuery UI to show pop up box with detailed info when a user click the name protion of a list item.
 		self.showDetail = function() {
 			console.log("!!!!!In showWindow: "+this.name());
 			self.search_term(this.name());
@@ -504,6 +457,7 @@ $(function() {
 			$('#dialog').dialog("moveToTop");
 		};
 
+		//User can toggle "+"/"-" sign next to list name. click "+" to show all items on the list. click "-" to collapse the list.
 		self.toggleList = function() {
 			console.log("In toggleList!!");
 			$('#loc_list').toggleClass("loc-list");
@@ -511,76 +465,25 @@ $(function() {
 			$('#minus').toggleClass("hidden");
 		};
 
+		//User clicks the hamburger menu to show category list. Only show up when screen is less than 500px
 		self.showList = function() {
 			console.log("in showList");
 			$("#selected-list").toggleClass("open");
 		};
 
+		//User clicks anywhere around the navigation menu to close the category list
 		self.closeList = function() {
 			console.log("in closeList");
 			$("#selected-list").removeClass("open");
 		};
 
+		//Select the text in search box when user clicks inside box for easy deletion
 		self.select = function() {
 			$('#search_term').select();
 		}
-
-		/*
-		self.showChoices = function() {
-			console.log("In showChoices!");
-			$('#selected-list').toggleClass("head");
-		};
-		*/
-		/*
-		ViewModel.getPlaces = function() {
-			var retArr = [];
-			self.locations().forEach(function(loc) {
-				if (loc.selected()) {
-					retArr.push({
-						"name": loc.name(),
-						"category": self.google_types,
-						"address": loc.address()
-					});
-				}
-			});
-			console.log(retArr);
-			return retArr;
-		};*/
 	};
 
-
-
-
-
-
-
-
-	/*var AppView =  {
-
-
-
-		init: function() {
-			document.getElementById("search_term").addEventListener("keyup", AppView.getSearchTerm);
-			document.getElementById("topFood").addEventListener("click", loadFood);
-			$("#search_form").submit(function(e) {
-				var term = document.getElementById("search_term").value;
-				console.log("submit is called:"+term);
-				v.setSearchTerm(term);
-				e.preventDefault();
-			})
-		},
-
-		getSearchTerm: function(e) {
-			var term = document.getElementById("search_term").value;
-			console.log("getSearchTerm:"+term);
-			ViewModel.searchPlace(term);
-			e.preventDefault();
-		}
-
-	};
-*/
-
-	//window.addEventListener('load', MapView.initMap);
+	//Start the app when google map is initialized successfully
 	if (MapView.initMap()) {
 		var viewModel = new ViewModel();
 		ko.applyBindings(viewModel);
@@ -588,11 +491,6 @@ $(function() {
 			map.fitBounds(bounds);
 		})
 	}
-
-	//viewModel.reload();
-	//AppView.init();
-
-	//ViewModel.setPins();
 });
 
 

@@ -17,7 +17,6 @@ h3{
 }
 
 .map-div {
-	/*position: absolute;*/
 	width: 100%;
 	height: 70%;
 	margin-bottom: 5px;
@@ -27,8 +26,6 @@ h3{
 	display: flex;
 	list-style: none;
 	width: 100%;
-	/*margin-left: 0;
-	margin-right: 0;*/
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -72,17 +69,6 @@ h3{
 	display: none;
 }
 
-/*
-.nav-header {
-	font-weight: 700;
-	color: black;
-	text-align: center;
-	font-size: 28px;
-	width: 100%;
-	margin-left: auto;
-	margin-right: auto;
-}
-*/
 @media screen and (max-width: 500px)  {
 	.nav span {
 		font-size: 24px;
@@ -144,58 +130,6 @@ h3{
 	.plusminus {
 		font-size: 16px;
 	}
-
-/*
-	.nav-menu {
-		position: relative;
-		display: block;
-		text-decoration: none;
-		text-align: center;
-		line-height: 20px;
-		padding: 10px 2px 10px 2px;
-		background-color: #99FFCC;
-		border: solid 1px #1e2a36;
-		border-radius: 2px;
-		font-weight: bold;
-		color: black;
-	}
-
-	.nav-menu:after {
-		//unicode for downward pointing arrow
-		content: "\25BC";
-		font-size: 0.5em;
-		display: block;
-		top: 30%;
-		right:12%;
-		text-align: right;
-		position:absolute;
-	}
-
-
-	.head {
-		display:none;
-		position: relative;
-		margin-top: 0;
-		padding-left: 0;
-	}
-
-	.nav-div:hover > .head {
-		display: block;
-	}
-
-
-	#selected-list li{
-		width: 100%;
-		position: relative;
-		border-bottom: 1px solid rgba(255,255,255,.2);
-		text-align: center;
-		background-color: #99FFCC;
-		list-style: none;
-		padding: 10px 0 10px 0;
-		border-radius: 2px;
-		border-width: 1px;
-	}
-*/
 }
 
 @media screen and (min-width: 900px) {
@@ -207,7 +141,7 @@ h3{
 
 /*with KO, selector input[type="text"] does not work!*/
 .search-box {
-	min-width: 200px;
+	min-width: 250px;
 	padding: 5px;
 	outline: none;
 	border: 2px solid #999999;
@@ -215,7 +149,7 @@ h3{
 	background-color: #FB#FB#FB;
 	font-size: 16px;
 	background-image: url("../images/search.png");
-	background-position: 110% 2%;
+	background-position: 105% 2%;
 	background-repeat: no-repeat;
 	margin-left: 5px;
 }
