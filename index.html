@@ -42,9 +42,9 @@
 				<ul id="loc_list" class ="loc-list" data-bind="foreach: locations">
 				    <li data-bind="visible: selected">
 				        <!--<span data-bind="text: $index"> </span>-->
-				        <span data-bind="text: name, click: $parent.showDetail"> </span>
+				        <span data-bind="text: name, click: $parent.showDetail" class="biz-name"> </span>
 				        <img data-bind="attr: {src: rating_img}">
-				        <span data-bind="text: neighborhoods"></span>
+				        <span data-bind="text: neighborhoods" class='biz-vicinity'></span>
 				        <div id="dialog" class="dialogBox" title = "Details" data-bind="text: name">
 						</div>
 				    </li>

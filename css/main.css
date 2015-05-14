@@ -160,6 +160,18 @@ h3{
 	margin-left: 5px;
 }
 
+.biz-name {
+	background-color: #ECE0F8;
+	border-radius: 3px;
+	font-style: italic;
+	font-weight: bold;
+}
+
+.biz-vicinity {
+	background-color: #E1F5A9;
+	border-radius: 1px;
+}
+
 .btn-noshow {
 	display: none;
 }
